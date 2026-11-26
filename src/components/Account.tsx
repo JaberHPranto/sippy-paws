@@ -39,7 +39,7 @@ export function AccountForm({ compact = false }: { compact?: boolean }) {
       ) : (
         <>
           <p className="small" style={{ fontWeight: 700, margin: "0 0 8px" }}>We emailed a 6-digit code to <b>{email}</b>.</p>
-          <div className="tform"><input inputMode="numeric" autoComplete="one-time-code" maxLength={6} placeholder="123456" value={code} onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))} style={{ letterSpacing: 4, fontWeight: 800 }} />
+          <div className="tform"><input type="text" inputMode="numeric" autoComplete="one-time-code" maxLength={6} placeholder="123456" value={code} onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))} style={{ letterSpacing: 4, fontWeight: 800 }} />
             <button className="btn primary" disabled={busy || code.length < 6}>Sign in</button></div>
           <button type="button" className="link" onClick={() => { setStep("email"); setCode(""); }}>Use a different email</button>
         </>

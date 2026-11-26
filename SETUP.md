@@ -10,13 +10,21 @@ About 20 minutes, all free tiers.
 1. Create a project at supabase.com (region: Singapore is closest to Dhaka).
 2. **SQL Editor** → paste `supabase/schema.sql` → Run.
 3. **Authentication → Providers → Email**: keep Email on. Turn **Confirm email** on.
-4. **Authentication → Email Templates → Magic Link**: make the body show the code, e.g.
+4. **Authentication → Email Templates**: put the code in **both** templates:
+   - **Confirm signup**: sent the first time an email signs in
+   - **Magic Link**: sent to returning users
+
+   For example:
    ```html
    <h2>Your Sippy Paws code</h2>
    <p style="font-size:28px;letter-spacing:6px"><b>{{ .Token }}</b></p>
    ```
    The app signs in with this 6-digit code, not a link, because on iPhone a link would open Safari
-   instead of the installed app.
+   instead of the installed app. If an email only says "Confirm your email", the template you missed
+   is Confirm signup.
+
+   Supabase's built-in sender only allows a few emails per hour. For more, add an SMTP provider
+   (e.g. Resend's free tier) under Authentication → SMTP Settings.
 5. **Database → Extensions**: enable `pg_cron` and `pg_net` (needed in step 4).
 
 ## 2. Keys
