@@ -1,0 +1,10 @@
+const z = (n: number) => String(n).padStart(2, "0");
+export const dk = (d = new Date()) => `${d.getFullYear()}-${z(d.getMonth() + 1)}-${z(d.getDate())}`;
+export const k2d = (k: string) => { const [y, m, d] = k.split("-").map(Number); return new Date(y, m - 1, d); };
+export const addDays = (k: string, n: number) => { const d = k2d(k); d.setDate(d.getDate() + n); return dk(d); };
+export const prevDay = (k: string) => addDays(k, -1);
+export const fmtMl = (n: number) => `${Math.round(n).toLocaleString()} ml`;
+export const fmtL = (n: number) => `${(n / 1000).toFixed(n >= 10000 ? 0 : 1)} L`;
+export const fmtDate = (ts: number) => new Date(ts).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
+export const fmtTime = (ts: number) => new Date(ts).toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" });
+export const pick = <T,>(a: readonly T[]) => a[Math.floor(Math.random() * a.length)];

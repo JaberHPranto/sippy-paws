@@ -1,32 +1,41 @@
 "use client";
 import { useEffect, useState } from "react";
+import { Header } from "@/components/Header";
 import { TabBar, type TabId } from "@/components/TabBar";
 import { Today } from "@/components/Today";
-import { Welcome } from "@/components/Welcome";
-import { Placeholder } from "@/components/Placeholder";
+import { Stats } from "@/components/Stats";
 import { Journal } from "@/components/Journal";
 import { Todo } from "@/components/Todo";
-import { Stats } from "@/components/Stats";
 import { Gifts } from "@/components/Gifts";
+import { StyleSoon } from "@/components/StyleSoon";
+import { Welcome } from "@/components/Welcome";
+import { ModalProvider } from "@/components/Modal";
+import { Fx } from "@/components/Fx";
 import { actions, useStore } from "@/lib/store";
 
 export default function Home() {
   const s = useStore();
   const [ready, setReady] = useState(false);
-  const [tab, setTab] = useState<TabId>("today");
-  useEffect(() => setReady(true), []);
+  const [tab, setTab] = useState<TabId>("home");
+  useEffect(() => { setReady(true); requestAnimationFrame(() => window.scrollTo(0, 0)); }, []);
+  const go = (t: TabId) => { setTab(t); window.scrollTo(0, 0); };
   if (!ready) return null;
-  if (!s.welcomed) return <Welcome name={s.name} onDone={actions.finishWelcome} />;
-
+  if (!s.welcomed) return <Welcome name={s.settings.name} onDone={actions.finishWelcome} />;
   return (
-    <div className="mx-auto min-h-dvh max-w-md pb-28">
-      {tab === "today" && <Today />}
-      {tab === "stats" && <Stats />}
-      {tab === "journal" && <Journal />}
-      {tab === "todo" && <Todo />}
-      {tab === "gifts" && <Gifts />}
-      {tab === "style" && <Placeholder title="Style" />}
-      <TabBar tab={tab} onChange={setTab} />
-    </div>
+    <ModalProvider>
+      <div className="app">
+      <Header />
+      <main>
+        {tab === "home" && <Today go={go} />}
+        {tab === "overview" && <Stats />}
+        {tab === "style" && <StyleSoon />}
+        {tab === "journal" && <Journal />}
+        {tab === "todo" && <Todo />}
+        {tab === "rewards" && <Gifts go={go} />}
+      </main>
+      <TabBar tab={tab} onChange={go} />
+      <Fx />
+      </div>
+    </ModalProvider>
   );
 }

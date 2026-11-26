@@ -3,7 +3,7 @@
 A cozy self-care PWA for Rizu: hydration reminders, journal and to-dos, guided by Bao (panda) and Miso (cat).
 
 ## Stack
-Next.js (App Router) + TypeScript + Tailwind v4 · Serwist PWA · Hugeicons (no emoji in the UI) · Supabase (planned) · web-push (planned)
+Next.js (App Router) + TypeScript · Serwist PWA · Hugeicons (no emoji in the UI) · Supabase (planned) · web-push (planned)
 
 ## Dev
 ```bash
@@ -16,6 +16,10 @@ npm run build && npm start   # service worker is disabled in `next dev`
 - [x] PWA shell, manifest, icons, service worker with push handlers
 - [x] Welcome / install flow (iOS Home Screen + reminder permission)
 - [x] Today screen (drinks, ml goal) with Hugeicons tab bar
-- [x] Journal, To-do, Stats, Gifts ported (shared localStorage store, points + bond level)
+- [x] Today, Stats, Journal, To-do, Gifts ported 1:1 from the v1 artifact (same CSS, same Bao & Miso SVGs, same point rules); emoji replaced with Hugeicons
+- [x] Settings sheet (names, goal, glass size, reminder hours)
 - [ ] Port Style (dress-up, boutique, closet, lookbook) and Paw Cards, with Miso
 - [ ] Supabase auth + RLS, `push_subscriptions`, pg_cron sender, VAPID keys
+
+## Design
+The look comes from the v1 artifact: `src/app/globals.css` is its stylesheet, and `src/lib/mascots.ts` is its mascot/outfit/scene SVG renderer, both ported verbatim. Keep new UI on those classes so the two stay in sync.
