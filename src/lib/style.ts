@@ -3,7 +3,7 @@ import { HatIcon, GlassesIcon, NecklaceIcon, TShirtIcon, BubbleTea01Icon, Sparkl
 import type { IconSvgElement } from "@hugeicons/react";
 import { ITEM, ITEMS, SLOTS, DUO } from "./mascots";
 import { dk, k2d, pick } from "./dates";
-import { actions, remote, bestStreak, commit, confetti, getState, hitOf, levelInfo, testOn, toast, type Look, type State } from "./store";
+import { actions, remote, bestStreak, commit, confetti, getState, hitOf, levelInfo, nameOf as herName, partnerOf, testOn, toast, type Look, type State } from "./store";
 import { sfx } from "./sound";
 
 export type Item = { id: string; slot: string; name: string; desc: string; lvl?: number; cost?: number; free?: boolean };
@@ -41,7 +41,7 @@ export function untilMidnight() { const n = new Date(), m = new Date(n.getFullYe
 export const nameOf = (s: State, kind: "panda" | "cat") => (kind === "panda" ? s.settings.pandaName : s.settings.catName);
 
 export function outfitLine(s: State, kind: "panda" | "cat") {
-  const look = activeLook(s, kind), items = Object.values(look).map((id) => ITEM_BY[id].name), N = s.settings.name;
+  const look = activeLook(s, kind), items = Object.values(look).map((id) => ITEM_BY[id].name), N = herName(s);
   const who = `<span class="who">${nameOf(s, kind)}:</span>`;
   if (!items.length) return `${who} I'm feeling a little plain today… dress me up, ${N}?`;
   const one = pick(items);
@@ -98,7 +98,7 @@ export const style = {
     set(next); confetti(); sfx("success"); toast(`${it.name} unlocked!`);
     return true;
   },
-  wish(text: string) { const s = S(); set({ wishes: [...s.wishes, { text, ts: Date.now() }].slice(-50) }); sfx("chime"); toast("Wish sent to Pranto"); remote.inbox("wish", { text }); remote.notifyOwner(`New outfit wish: “${text}”`); },
+  wish(text: string) { const s = S(); set({ wishes: [...s.wishes, { text, ts: Date.now() }].slice(-50) }); sfx("chime"); toast(`Wish sent to ${partnerOf(s)}`); remote.inbox("wish", { text }); remote.notifyOwner(`New outfit wish: “${text}”`); },
   savePreset(name: string) {
     const s = S();
     set({ presets: [{ id: "p" + Date.now().toString(36), name: name || `Look #${s.presets.length + 1}`, panda: activeLook(s, "panda"), cat: activeLook(s, "cat"), scene: sceneNow(s) }, ...s.presets].slice(0, 8) });

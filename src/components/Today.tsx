@@ -78,7 +78,7 @@ export function Today({ go }: { go: (t: "overview") => void }) {
       <div className="card">
         <h3>What are you sipping?</h3>
         <div className="drinks">
-          {DRINKS.map((d) => (
+          {[...DRINKS].sort((a, b) => Number(s.settings.favDrinks.includes(b.id)) - Number(s.settings.favDrinks.includes(a.id))).map((d) => (
             <motion.button whileTap={{ scale: 0.9 }} key={d.id} className={`drink ${pop === d.id ? "pop" : ""}`} style={{ ["--c" as string]: d.color }} onClick={() => drink(d.id, d.ml)}>
               <span className="ic"><Icon icon={d.icon} size={28} stroke={1.8} /></span><span className="nm">{d.name}</span><span className="ml">{d.ml} ml</span>
             </motion.button>

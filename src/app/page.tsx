@@ -9,10 +9,10 @@ import { Todo } from "@/components/Todo";
 import { Gifts } from "@/components/Gifts";
 import { StyleTab, type StyleView } from "@/components/Style";
 import { RevealHost } from "@/components/Cards";
-import { Welcome } from "@/components/Welcome";
+import { Onboarding } from "@/components/Onboarding";
 import { ModalProvider } from "@/components/Modal";
 import { Fx } from "@/components/Fx";
-import { actions, useStore } from "@/lib/store";
+import { useStore } from "@/lib/store";
 import { wireTapSounds } from "@/lib/sound";
 import { useSyncEngine } from "@/lib/sync";
 import { AnimatePresence, MotionConfig, motion } from "motion/react";
@@ -26,7 +26,7 @@ export default function Home() {
   useEffect(() => { setReady(true); requestAnimationFrame(() => window.scrollTo(0, 0)); return wireTapSounds(); }, []);
   const go = (t: TabId) => { if (t === tab) return; setTab(t); window.scrollTo({ top: 0 }); };
   if (!ready) return null;
-  if (!s.welcomed) return <Welcome name={s.settings.name} onDone={actions.finishWelcome} />;
+  if (!s.welcomed) return <MotionConfig reducedMotion="user"><Onboarding /><Fx /></MotionConfig>;
   return (
     <MotionConfig reducedMotion="user">
     <ModalProvider>

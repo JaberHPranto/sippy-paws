@@ -36,7 +36,7 @@ export const DEFAULT_COUPONS: Coupon[] = [
   { id: "c1", icon: "icecream", title: "Ice cream date", cost: 60 },
   { id: "c2", icon: "massage", title: "20-min head massage", cost: 80 },
   { id: "c3", icon: "movie", title: "Movie night — you pick", cost: 120 },
-  { id: "c4", icon: "dinner", title: "Pranto cooks dinner", cost: 160 },
+  { id: "c4", icon: "dinner", title: "A home-cooked dinner", cost: 160 },
   { id: "c5", icon: "flowers", title: "Surprise flowers", cost: 220 },
   { id: "c6", icon: "gift", title: "Mystery gift", cost: 350 },
 ];

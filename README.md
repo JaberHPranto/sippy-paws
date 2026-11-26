@@ -14,7 +14,8 @@ npm run build && npm start   # service worker is disabled in `next dev`
 
 ## Status
 - [x] PWA shell, manifest, icons, service worker with push handlers
-- [x] Welcome / install flow (iOS Home Screen + reminder permission)
+- [x] Animated onboarding: name, buddy names, partner (who sends treats), water goal (with weight helper), reminder hours + interval, favorite drinks, sound, sign-in, install + reminders
+- [x] No hardcoded personal data: names come from onboarding; Settings → Start over wipes the device
 - [x] Today screen (drinks, ml goal) with Hugeicons tab bar
 - [x] Today, Stats, Journal, To-do, Gifts ported 1:1 from the v1 artifact (same CSS, same Bao & Miso SVGs, same point rules); emoji replaced with Hugeicons
 - [x] Settings sheet (names, goal, glass size, reminder hours, sound effects on/off)

@@ -11,7 +11,8 @@ export function localParts(now: Date, tz: string) {
 }
 
 export function decide(st: RemindState, now: Date, tz: string, lastSentAt: number | null): { title: string; body: string } | null {
-  const s = { name: "Rizu", pandaName: "Bao", catName: "Miso", goalMl: 2000, remind: true, interval: 60, startHour: 9, endHour: 22, ...st.settings };
+  const s = { name: "friend", pandaName: "Bao", catName: "Miso", goalMl: 2000, remind: true, interval: 60, startHour: 9, endHour: 22, ...st.settings };
+  if (!s.name) s.name = "friend";
   if (!s.remind) return null;
   const { day, hour } = localParts(now, tz);
   const inHours = s.startHour <= s.endHour ? hour >= s.startHour && hour < s.endHour : hour >= s.startHour || hour < s.endHour;

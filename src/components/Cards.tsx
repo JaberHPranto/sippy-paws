@@ -7,7 +7,7 @@ import { Icon } from "./Icon";
 import { useModal } from "./Modal";
 import { COZ, COZY, DUST, MOM, MOMENTS, PACK_COST, RARITY, cardBack, cardHTML, claimSpecials, clearReveals, latestInst, openPack, packArt, pendingSpecials, recycleDupes, setInfo, shiftReveal, specialList, useReveals } from "@/lib/cards";
 import { dk } from "@/lib/dates";
-import { confetti, testOn, useStore } from "@/lib/store";
+import { confetti, partnerOf, testOn, useStore } from "@/lib/store";
 import { sfx } from "@/lib/sound";
 
 type Set = "moments" | "cozy" | "special";
@@ -75,7 +75,7 @@ function PackSheet({ pulls, dupes }: { pulls: (typeof COZY)[number][]; dupes: bo
   );
 }
 
-const SETS: [Set, string, IconSvgElement][] = [["moments", "Daily Moments", Sun03Icon], ["cozy", "Cozy Collection", Sofa01Icon], ["special", "From Pranto", FavouriteIcon]];
+const SETS: [Set, string, IconSvgElement][] = [["moments", "Daily Moments", Sun03Icon], ["cozy", "Cozy Collection", Sofa01Icon], ["special", "Specials", FavouriteIcon]];
 
 export function Cards() {
   const s = useStore(), { open } = useModal(), [set, setSet] = useState<Set>("moments");
@@ -103,7 +103,7 @@ export function Cards() {
       {unclaimed.length > 0 && (
         <motion.div className="card gift-banner" initial={{ scale: 0.95 }} animate={{ scale: [1, 1.02, 1] }} transition={{ repeat: Infinity, duration: 2.4 }}>
           <div style={{ color: "var(--pink)" }}><Icon icon={MailLove01Icon} size={30} /></div>
-          <div style={{ flex: 1 }}><b>Pranto sent you {unclaimed.length === 1 ? "a special card" : `${unclaimed.length} special cards`}!</b><div className="small muted" style={{ fontWeight: 700 }}>One-of-a-kind. Only you have these.</div></div>
+          <div style={{ flex: 1 }}><b>{partnerOf(s)} sent you {unclaimed.length === 1 ? "a special card" : `${unclaimed.length} special cards`}!</b><div className="small muted" style={{ fontWeight: 700 }}>One-of-a-kind. Only you have these.</div></div>
           <button className="btn pink" onClick={claimSpecials}>Open</button>
         </motion.div>
       )}
@@ -130,7 +130,7 @@ export function Cards() {
               );
             })}
           </div>
-        ) : <div className="empty">No special cards yet. Pranto is working on it</div>}
+        ) : <div className="empty">No special cards yet. {partnerOf(s)} might be making one</div>}
       </div>
     </>
   );
@@ -147,7 +147,7 @@ export function RevealHost({ goCards }: { goCards: () => void }) {
     sfx(rare ? "success" : "chime");
     open(
       <div style={{ textAlign: "center" }}>
-        <h2>{r.set === "special" ? "A card from Pranto" : "New Paw Card!"}</h2>
+        <h2>{r.set === "special" ? `A card from ${partnerOf(s)}` : "New Paw Card!"}</h2>
         {r.set !== "special" && <p className="muted small" style={{ fontWeight: 800, margin: "0 0 10px" }}>{r.set === "moments" ? "Daily Moments" : "Cozy Collection"} · {RARITY[r.def.r as keyof typeof RARITY].label}</p>}
         <motion.div className="reveal" initial={{ rotateY: 100, scale: 0.6, opacity: 0 }} animate={{ rotateY: 0, scale: 1, opacity: 1 }} transition={{ type: "spring", stiffness: 160, damping: 14 }}>
           <TiltCard h={cardHTML(s, r.set, r.def, r.inst, true)} />

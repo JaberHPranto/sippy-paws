@@ -2,7 +2,7 @@
 import { useSyncExternalStore } from "react";
 import { DEFAULT_COUPONS, type Coupon } from "./data";
 
-/** Things Pranto controls (coupons). Defaults offline; replaced from the backend when signed in. */
+/** Things the partner (owner) controls (coupons). Defaults offline; replaced from the backend when signed in. */
 let coupons: Coupon[] = DEFAULT_COUPONS;
 const subs = new Set<() => void>();
 export const setCoupons = (c: Coupon[] | null) => { coupons = c && c.length ? c : DEFAULT_COUPONS; subs.forEach((f) => f()); };

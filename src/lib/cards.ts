@@ -5,12 +5,12 @@ import { DropletIcon, Sofa01Icon, SparklesIcon, FavouriteIcon, PawPrintIcon } fr
 import { mascot, sceneSVG, soloStage, ITEM } from "./mascots";
 import { iconSVG, esc } from "./iconstr";
 import { addDays, dk, fmtDate, pick, prevDay } from "./dates";
-import { commit, confetti, getState, goalOf, hitOf, isOwner, mlOf, onAction, testOn, toast, waterStreak, type CardInst, type SpecialDef, type State } from "./store";
+import { commit, confetti, getState, goalOf, hitOf, isOwner, mlOf, onAction, partnerOf, testOn, toast, waterStreak, type CardInst, type SpecialDef, type State } from "./store";
 import { activeLook, realLevel, sceneNow } from "./style";
 import { sfx } from "./sound";
 
 export const RARITY = {
-  common: { label: "Common", sym: "●", w: 70 }, rare: { label: "Rare", sym: "◆", w: 23 }, holo: { label: "Holo", sym: "★", w: 6 }, secret: { label: "Secret Rare", sym: "✦", w: 1 }, special: { label: "From Pranto", sym: "♥", w: 0 },
+  common: { label: "Common", sym: "●", w: 70 }, rare: { label: "Rare", sym: "◆", w: 23 }, holo: { label: "Holo", sym: "★", w: 6 }, secret: { label: "Secret Rare", sym: "✦", w: 1 }, special: { label: "Special", sym: "♥", w: 0 },
 };
 export const TYPES = { hydro: { icon: DropletIcon, label: "Hydro" }, cozy: { icon: Sofa01Icon, label: "Cozy" }, charm: { icon: SparklesIcon, label: "Charm" }, love: { icon: FavouriteIcon, label: "Love" } };
 export const MOMENTS = [
@@ -58,7 +58,7 @@ export const MOM = Object.fromEntries(MOMENTS.map((d) => [d.id, d])), COZ = Obje
 export const PACK_COST = 50, DUST = 5;
 const z = (n) => String(n).padStart(2, "0");
 
-/* Pranto's live special cards (set by the backend; empty offline) */
+/* Live special cards from the partner (set by the backend; empty offline) */
 let SPECIALS: SpecialDef[] = [];
 export const setSpecials = (list: SpecialDef[]) => { SPECIALS = list || []; bump(); };
 export const pendingSpecials = (s: State) => SPECIALS.filter((d) => !s.claimed[d.id]);
@@ -183,7 +183,7 @@ export function cardHTML(s: State, set: string, def, inst, big = false) {
     <div class="pc-moves">${(def.moves || []).map(([n, d, ds]) => `<div class="mv"><span class="mi">${ic(12)}</span><div class="mt"><b>${esc(n)}</b>${ds ? `<small>${esc(ds)}</small>` : ""}</div><span class="dm">${statOf(d)}</span></div>`).join("")}</div>
     <div class="pc-stats"><span>${iconSVG(DropletIcon, 11, 2.2, "#5bbcf7")}<b>${pip(st[0])}</b></span><span>${iconSVG(Sofa01Icon, 11, 2.2, "#ff8fa3")}<b>${pip(st[1])}</b></span><span>${iconSVG(SparklesIcon, 11, 2.2, "#e5a400")}<b>${pip(st[2])}</b></span></div>
     <div class="pc-fl">${esc(def.fl || "")}</div>
-    <div class="pc-foot"><span>${R.sym} ${R.label}</span><span>${set === "moments" ? "Daily Moments" : set === "special" ? "Pranto's Specials" : "Cozy Collection"}</span><span>${no}</span></div>
+    <div class="pc-foot"><span>${R.sym} ${def.r === "special" ? "From " + esc(partnerOf(s)) : R.label}</span><span>${set === "moments" ? "Daily Moments" : set === "special" ? "Special Cards" : "Cozy Collection"}</span><span>${no}</span></div>
   </div><div class="holo"></div><div class="glare"></div></div>`;
 }
 export const cardBack = () => `<div class="pcard back"><div class="pc-in"><div class="cb-logo">${iconSVG(PawPrintIcon, 48, 1.8, "#fff")}<b>Sippy Paws</b><small>PAW CARDS</small></div></div></div>`;
@@ -195,7 +195,7 @@ export const packArt = () => `<svg viewBox="0 0 160 220"><defs><linearGradient i
   <text x="80" y="192" text-anchor="middle" font-family="Nunito Variable,Nunito,sans-serif" font-weight="800" font-size="9" fill="#fff">COZY COLLECTION · 3 CARDS</text>
   <text x="80" y="34" text-anchor="middle" font-family="Fredoka Variable,Fredoka,sans-serif" font-weight="700" font-size="12" fill="#fff">Sippy Paws</text></svg>`;
 
-/* Pranto's special-card maker */
+/* Special-card maker (owner) */
 export function buildSpecial(s: State, f: { name: string; kind: string; mood: string; scene: string; move: string; fl: string }): SpecialDef {
   return { id: "sp" + Date.now().toString(36), name: f.name || "Special Moment", r: "special", t: "love", kind: f.kind, mood: f.mood, pm: f.mood, cm: f.mood === "happy" ? "wink" : f.mood, scene: f.scene,
     p: lookStr(activeLook(s, "panda")), c: lookStr(activeLook(s, "cat")), hp: 999, st: [99, 99, 99], ts: Date.now(), moves: [[f.move || "Endless Love", "∞", ""]], fl: f.fl || "Made just for you." };

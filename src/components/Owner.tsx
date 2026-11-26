@@ -11,7 +11,7 @@ import { getState, testOn, toast, useStore } from "@/lib/store";
 import { ALL_ITEMS, style } from "@/lib/style";
 import { saveShared, useCloud } from "@/lib/sync";
 
-/** Only Pranto sees this (role = owner in Supabase). */
+/** Only the owner sees this (role = owner in Supabase). */
 export function OwnerPanel() {
   const s = useStore(), cloud = useCloud(), { open, close } = useModal();
   const live = useCoupons();
@@ -28,8 +28,8 @@ export function OwnerPanel() {
   };
   return (
     <div className="card owner">
-      <h3 style={{ display: "flex", alignItems: "center", gap: 6 }}><Icon icon={WrenchIcon} size={18} />For Pranto only</h3>
-      <p className="muted small" style={{ marginTop: -4 }}>Only you (the owner) see this. Edit the coupons she can redeem.</p>
+      <h3 style={{ display: "flex", alignItems: "center", gap: 6 }}><Icon icon={WrenchIcon} size={18} />Owner tools</h3>
+      <p className="muted small" style={{ marginTop: -4 }}>Only you (the owner) see this. Edit the coupons {s.settings.partnerName || "she"} can redeem.</p>
       {cs.map((c, i) => (
         <div className="crow" key={c.id}>
           <select className="ce" value={c.icon} onChange={(e) => upd(i, { icon: e.target.value as CouponIconKey })} style={{ width: 92 }}>

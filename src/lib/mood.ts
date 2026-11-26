@@ -1,5 +1,5 @@
 import { dk, fmtMl, pick } from "./dates";
-import { type State, goalOf, mlOf, pctOf, hitOf, who } from "./store";
+import { type State, goalOf, mlOf, pctOf, hitOf, who, nameOf } from "./store";
 
 export type Mood = "normal" | "happy" | "ecstatic" | "sad" | "wink" | "sleepy";
 
@@ -32,7 +32,7 @@ export const moodForDay = (s: State, k: string): Mood =>
   k === dk() ? moodNow(s) : hitOf(s, k) ? "ecstatic" : pctOf(s, k) >= 0.6 ? "normal" : "sad";
 
 export function defaultLine(s: State, seed: number) {
-  const N = s.settings.name, k = dk(), left = Math.max(0, goalOf(s, k) - mlOf(s, k)), h = new Date().getHours();
+  const N = nameOf(s), k = dk(), left = Math.max(0, goalOf(s, k) - mlOf(s, k)), h = new Date().getHours();
   const P = who(s, "P"), C = who(s, "C");
   const p = <T,>(a: T[]) => a[seed % a.length];
   switch (moodNow(s)) {

@@ -7,17 +7,17 @@ import { OwnerPanel } from "./Owner";
 import { COUPON_ICONS, type Coupon } from "@/lib/data";
 import { fmtDate } from "@/lib/dates";
 import { useCoupons } from "@/lib/shared";
-import { actions, useOwner, useStore, type Ticket } from "@/lib/store";
+import { actions, partnerOf, useOwner, useStore, type Ticket } from "@/lib/store";
 
 export function BigTicket({ t, icon }: { t: Ticket; icon: Coupon["icon"] }) {
-  const { close } = useModal();
+  const { close } = useModal(), s = useStore();
   return (
     <>
       <motion.div className="big-ticket" initial={{ scale: 0.6, rotate: -6, opacity: 0 }} animate={{ scale: 1, rotate: 0, opacity: 1 }} transition={{ type: "spring", stiffness: 300, damping: 16 }}>
         <div className="e" style={{ color: "var(--pink)" }}><Icon icon={COUPON_ICONS[icon] ?? Ticket01Icon} size={54} stroke={1.6} /></div>
         <div className="t">{t.title}</div>
         <div className="code">{t.code}</div>
-        <div className="muted small" style={{ fontWeight: 700, marginTop: 6 }}>Redeemed {fmtDate(t.ts)} · show this to Pranto</div>
+        <div className="muted small" style={{ fontWeight: 700, marginTop: 6 }}>Redeemed {fmtDate(t.ts)} · show this to {partnerOf(s)}</div>
       </motion.div>
       <button className="btn primary" style={{ width: "100%" }} onClick={close}>Close</button>
     </>
@@ -45,7 +45,7 @@ export function Gifts({ go }: { go: (t: "style") => void }) {
       </div>
       <div className="card">
         <h3 style={{ display: "flex", alignItems: "center" }}>Love coupons<Icon icon={MailLove01Icon} size={20} /></h3>
-        <p className="muted small" style={{ marginTop: -4 }}>Spend paw points on real treats. Redeem one, then show Pranto the ticket.</p>
+        <p className="muted small" style={{ marginTop: -4 }}>Spend paw points on real treats. Redeem one, then show {partnerOf(s)} the ticket.</p>
         <div className="coupons">
           {coupons.map((c) => (
             <motion.button whileTap={{ scale: 0.95, rotate: -1 }} key={c.id} className={`coupon ${s.points < c.cost ? "locked" : ""}`} onClick={() => tryRedeem(c)}>

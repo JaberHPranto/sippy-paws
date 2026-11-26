@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { admin, sendPush, userFrom, type Sub } from "@/lib/server";
 
-/** Lets Pranto know when she redeems a coupon or sends an outfit wish. */
+/** Lets the owner know when she redeems a coupon or sends an outfit wish. */
 export async function POST(req: Request) {
   const user = await userFrom(req);
   if (!user) return NextResponse.json({ error: "sign in first" }, { status: 401 });

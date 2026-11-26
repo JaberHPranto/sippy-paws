@@ -8,7 +8,7 @@ import { Mascot } from "./Mascot";
 import { useModal } from "./Modal";
 import { DAYS, MOODS, MOOD_FILL, PROMPTS } from "@/lib/data";
 import { addDays, dk, fmtDate, fmtMl, fmtTime, k2d, pick } from "@/lib/dates";
-import { actions, hitOf, journalStreak, mlOf, useStore, who, type Entry, type State } from "@/lib/store";
+import { actions, hitOf, journalStreak, mlOf, nameOf, useStore, who, type Entry, type State } from "@/lib/store";
 import type { Mood } from "@/lib/mood";
 
 const avg = (a: number[]) => (a.length ? a.reduce((x, y) => x + y, 0) / a.length : null);
@@ -105,7 +105,7 @@ export function Journal() {
           <div className="mood-chart"><MoodChart dm={dm} start={start} range={range} onDay={openDay} /></div>
           <div className="mix-bar">{counts.map((c, i) => c ? <i key={i} style={{ flex: c, background: MOOD_FILL[i] }} title={MOODS[i].label} /> : null)}</div>
           <div className="mix-legend">{counts.map((c, i) => <span key={i} className={c ? "" : "dim"} style={{ display: "flex", alignItems: "center", gap: 3 }}><MoodIc v={i} size={15} />{Math.round((c / moods.length) * 100)}%</span>)}</div>
-          {heavy && <div className="care"><div className="mini-face"><Mascot kind="cat" mood="sad" className="mini" /></div><div><b>{s.settings.catName}:</b> Lots of heavy days lately… be gentle with yourself, {s.settings.name}. Maybe share a little of it with someone you trust?</div></div>}
+          {heavy && <div className="care"><div className="mini-face"><Mascot kind="cat" mood="sad" className="mini" /></div><div><b>{s.settings.catName}:</b> Lots of heavy days lately… be gentle with yourself, {nameOf(s)}. Maybe share a little of it with someone you trust?</div></div>}
           {ins.length ? <div className="insights">{ins.map(([ic, t], i) => <div className="ins" key={i}><span><Icon icon={ic} size={20} /></span><p dangerouslySetInnerHTML={{ __html: t }} /></div>)}</div>
             : <p className="muted small" style={{ margin: "10px 0 0" }}>Keep picking a mood when you write. Patterns show up after a few more entries.</p>}
         </> : <div className="empty">Pick a mood when you write, and your mood story will start showing up here</div>}

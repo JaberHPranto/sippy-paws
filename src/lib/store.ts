@@ -7,7 +7,7 @@ import { sfx } from "./sound";
 export type Entry = { id: string; date: string; ts: number; mood: number | null; prompt?: string; text: string };
 export type Todo = { id: string; text: string; done: boolean; ts: number; doneAt?: number; doneDay?: string; paid?: boolean };
 export type Ticket = { code: string; couponId: string; title: string; cost: number; ts: number };
-export type Settings = { name: string; pandaName: string; catName: string; goalMl: number; waterMl: number; remind: boolean; interval: number; startHour: number; endHour: number; sound: boolean };
+export type Settings = { name: string; partnerName: string; favDrinks: string[]; pandaName: string; catName: string; goalMl: number; waterMl: number; remind: boolean; interval: number; startHour: number; endHour: number; sound: boolean };
 
 /** Same shape as the v1 artifact (minus style/cards, which come later) so data can be migrated. */
 export type State = {
@@ -30,7 +30,7 @@ export type SpecialDef = { id: string; name: string; r: "special"; t: string; ki
 const KEY = "sippypaws.v2";
 const initial: State = {
   v: 2, welcomed: false,
-  settings: { name: "Rizu", pandaName: "Bao", catName: "Miso", goalMl: 2000, waterMl: 250, remind: true, interval: 60, startHour: 9, endHour: 22, sound: true },
+  settings: { name: "", partnerName: "", favDrinks: [], pandaName: "Bao", catName: "Miso", goalMl: 2000, waterMl: 250, remind: true, interval: 60, startHour: 9, endHour: 22, sound: true },
   ml: {}, drinks: {}, dayGoal: {}, undo: [], lastDrink: 0, jdays: {}, tdone: {}, todos: [], journal: [],
   points: 0, xp: 0, awards: {}, redeemed: [], packs: 0,
   style: { panda: {}, cat: {} }, owned: {}, scene: "sky", pose: "auto", editing: "panda", test: false,
@@ -60,7 +60,7 @@ export const remote = {
 export const replaceState = (next: Partial<State>) => commit({ ...initial, ...next, settings: { ...initial.settings, ...next.settings }, style: { ...initial.style, ...next.style } } as State, { remote: true });
 export const subscribe = (f: () => void) => { subs.add(f); return () => { subs.delete(f); }; };
 
-/* ---------- owner (Pranto) + action hooks ---------- */
+/* ---------- owner (the partner who sends gifts) + action hooks ---------- */
 let owner = false;
 const ownerSubs = new Set<() => void>();
 export const isOwner = () => owner;
@@ -125,10 +125,16 @@ const DRINK_LINES: Record<string, string[]> = {
   milk: ["C|Milk?! Now we're talking. *licks lips*", "P|Strong bones, happy panda."],
   lassi: ["P|Lassi! Creamy and cool.", "C|Mmm… can I lick the glass?"],
 };
+/** Her name, or a friendly fallback before onboarding. */
+export const nameOf = (s: State) => s.settings.name.trim() || "friend";
+/** The person who sends coupons + special cards. */
+export const partnerOf = (s: State) => s.settings.partnerName.trim() || "your partner";
 export const who = (s: State, k: "P" | "C") => `<span class="who">${k === "P" ? s.settings.pandaName : s.settings.catName}:</span>`;
 
 export const actions = {
   finishWelcome: () => commit({ ...S, welcomed: true }),
+  /** Wipes everything on this device (used by Settings → Start over). */
+  resetAll: () => { try { Object.keys(localStorage).filter((k) => k.startsWith("sippypaws")).forEach((k) => localStorage.removeItem(k)); } catch { /* ignore */ } commit({ ...initial }, { remote: true }); },
   emit,
   updateSettings: (p: Partial<Settings>) => commit({ ...S, settings: { ...S.settings, ...p } }),
   addDrink(id: string, mlIn: number) {
@@ -200,7 +206,7 @@ export const actions = {
     const t: Ticket = { code: code(), couponId: c.id, title: c.title, cost: c.cost, ts: Date.now() };
     commit({ ...S, points: S.points - c.cost, redeemed: [...S.redeemed, t].slice(-100) });
     confetti(); sfx("success");
-    remote.inbox("redeem", { ...t }); remote.notifyOwner(`${S.settings.name} redeemed “${c.title}” (code ${t.code})`);
+    remote.inbox("redeem", { ...t }); remote.notifyOwner(`${nameOf(S)} redeemed “${c.title}” (code ${t.code})`);
     return t;
   },
 };

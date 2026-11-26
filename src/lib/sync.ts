@@ -61,7 +61,7 @@ export async function loadInbox() {
   set({ inbox: (data ?? []) as Inbox[] });
 }
 
-/* ---------- owner (Pranto) writes ---------- */
+/* ---------- owner writes ---------- */
 export async function saveShared(key: "coupons" | "specials", value: unknown) {
   if (!sb) throw new Error("Cloud sync isn't set up");
   const { error } = await sb.from("shared").upsert({ key, value, updated_at: new Date().toISOString() });

@@ -9,7 +9,7 @@ import { Cards } from "./Cards";
 import { charSVG, sceneSVG, soloStage, duoStage } from "@/lib/mascots";
 import { moodNow } from "@/lib/mood";
 import { fmtDate } from "@/lib/dates";
-import { levelInfo, testOn, useOwner, useStore, type Snap, type State } from "@/lib/store";
+import { levelInfo, partnerOf, testOn, useOwner, useStore, type Snap, type State } from "@/lib/store";
 import { ALL_ITEMS, BORDERS, DUOS, DUO_ICON, ITEM_BY, POSES, SLOT_ICON, SLOT_LIST, activeLook, badges, effLevel, featured, nameOf, outfitLine, owns, priceOf, sceneNow, shopItems, slotName, style, untilMidnight, wearables, type Item } from "@/lib/style";
 
 export type StyleView = "dress" | "shop" | "closet" | "look" | "cards";
@@ -183,24 +183,24 @@ function Shop({ filter, setFilter }: { filter: string; setFilter: (v: string) =>
       </div>
       {f ? (
         <div className="card featured">
-          <div className="card-h"><span className="tag lv" style={{ display: "inline-flex", gap: 4, alignItems: "center" }}><Icon icon={StarIcon} size={12} stroke={2.2} />Pranto&apos;s pick of the day</span><span className="tag shop">25% off today</span></div>
+          <div className="card-h"><span className="tag lv" style={{ display: "inline-flex", gap: 4, alignItems: "center" }}><Icon icon={StarIcon} size={12} stroke={2.2} />Pick of the day</span><span className="tag shop">25% off today</span></div>
           <div className="stagebox"><div dangerouslySetInnerHTML={html(f.slot === "scene" ? svgScene(f.id) : soloStage(k, "happy", fLook, sceneNow(s)))} />
             <div className="feat-lbl"><b>{f.name}</b><span>{f.desc}</span></div></div>
           <button className="btn primary" style={{ width: "100%", marginTop: 12 }} onClick={() => open(<BuySheet it={f} />)}>
             Unlock item · {testOn(s) ? "free (test)" : <>{priceOf(s, f)} <s style={{ opacity: 0.6 }}>{f.cost}</s></>}
           </button>
         </div>
-      ) : <div className="card"><div className="empty">You own every design in the boutique! Ask Pranto for something new in the wishbox below.</div></div>}
+      ) : <div className="card"><div className="empty">You own every design in the boutique! Ask {partnerOf(s)} for something new in the wishbox below.</div></div>}
       <div className="card">
         <div className="card-h"><h3>Boutique catalog</h3><span className="tag">{shopItems().length} designs</span></div>
         <SlotFilters value={filter} set={setFilter} extra={[["all", "All"]]} scenes />
         <div className="items">{list.map((it) => <ItemCard key={it.id} it={it} kind={k} mode="shop" />)}</div>
       </div>
       <div className="card wish">
-        <div className="card-h"><h3 style={{ display: "flex", alignItems: "center", gap: 6 }}><Icon icon={ScissorIcon} size={18} />Custom tailor wishbox</h3><span className="tag">to Pranto&apos;s desk</span></div>
-        <p className="muted small" style={{ marginTop: -4 }}>Have a cute outfit idea for {s.settings.pandaName} or {s.settings.catName}? Send it to Pranto. He might design it for real!</p>
+        <div className="card-h"><h3 style={{ display: "flex", alignItems: "center", gap: 6 }}><Icon icon={ScissorIcon} size={18} />Custom tailor wishbox</h3><span className="tag">to {partnerOf(s)}</span></div>
+        <p className="muted small" style={{ marginTop: -4 }}>Have a cute outfit idea for {s.settings.pandaName} or {s.settings.catName}? Send it to {partnerOf(s)}. They might design it for real!</p>
         <input type="text" maxLength={140} value={wish} onChange={(e) => setWish(e.target.value)} placeholder="e.g. a tiny matcha beret, or a boba straw scarf" style={{ width: "100%" }} />
-        <button className="btn" style={{ width: "100%", marginTop: 10, background: "var(--ink)", color: "#fff" }} onClick={() => { if (wish.trim()) { style.wish(wish.trim()); setWish(""); } }}><Icon icon={Mail01Icon} size={16} stroke={2} />Send wish to Pranto</button>
+        <button className="btn" style={{ width: "100%", marginTop: 10, background: "var(--ink)", color: "#fff" }} onClick={() => { if (wish.trim()) { style.wish(wish.trim()); setWish(""); } }}><Icon icon={Mail01Icon} size={16} stroke={2} />Send wish to {partnerOf(s)}</button>
         {s.wishes.length > 0 && <div className="muted small" style={{ marginTop: 10, fontWeight: 700 }}>Sent: {s.wishes.slice(-3).reverse().map((w) => `“${w.text}”`).join(" · ")}</div>}
       </div>
     </>
