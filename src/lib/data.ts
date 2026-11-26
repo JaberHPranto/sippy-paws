@@ -27,13 +27,18 @@ export const MOODS = [
 /** Softer fills for calendars / bars (same as v1). */
 export const MOOD_FILL = ["#8fa8d8", "#b9a6e3", "#d9cfc4", "#ffcf6e", "#ff8fa3"];
 
-export const COUPONS = [
-  { id: "c1", icon: IceCreamIcon, title: "Ice cream date", cost: 60 },
-  { id: "c2", icon: HandHeartIcon, title: "20-min head massage", cost: 80 },
-  { id: "c3", icon: Video01Icon, title: "Movie night — you pick", cost: 120 },
-  { id: "c4", icon: NoodlesIcon, title: "Pranto cooks dinner", cost: 160 },
-  { id: "c5", icon: FlowerIcon, title: "Surprise flowers", cost: 220 },
-  { id: "c6", icon: GiftIcon, title: "Mystery gift", cost: 350 },
+export const COUPON_ICONS = {
+  icecream: IceCreamIcon, massage: HandHeartIcon, movie: Video01Icon, dinner: NoodlesIcon, flowers: FlowerIcon, gift: GiftIcon,
+} as const;
+export type CouponIconKey = keyof typeof COUPON_ICONS;
+export type Coupon = { id: string; icon: CouponIconKey; title: string; cost: number };
+export const DEFAULT_COUPONS: Coupon[] = [
+  { id: "c1", icon: "icecream", title: "Ice cream date", cost: 60 },
+  { id: "c2", icon: "massage", title: "20-min head massage", cost: 80 },
+  { id: "c3", icon: "movie", title: "Movie night — you pick", cost: 120 },
+  { id: "c4", icon: "dinner", title: "Pranto cooks dinner", cost: 160 },
+  { id: "c5", icon: "flowers", title: "Surprise flowers", cost: 220 },
+  { id: "c6", icon: "gift", title: "Mystery gift", cost: 350 },
 ];
 
 export const TIPS = [

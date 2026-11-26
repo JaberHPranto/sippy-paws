@@ -14,10 +14,12 @@ import { ModalProvider } from "@/components/Modal";
 import { Fx } from "@/components/Fx";
 import { actions, useStore } from "@/lib/store";
 import { wireTapSounds } from "@/lib/sound";
+import { useSyncEngine } from "@/lib/sync";
 import { AnimatePresence, MotionConfig, motion } from "motion/react";
 
 export default function Home() {
   const s = useStore();
+  useSyncEngine();
   const [ready, setReady] = useState(false);
   const [tab, setTab] = useState<TabId>("home");
   const [sv, setSv] = useState<StyleView>("dress");

@@ -493,3 +493,8 @@ h3 .hi{margin-left:6px;color:var(--pink)}
 .bubble{transform-origin:50% 0}
 @media (prefers-reduced-motion: reduce){.view>.card{animation:none}}
 .grab{width:42px;height:5px;border-radius:99px;background:#eadde3;margin:-8px auto 12px}
+
+/* ---------- v2: form fixes ---------- */
+input[type=email]{border:2px solid var(--line);border-radius:14px;padding:12px;font:inherit;color:var(--ink);background:#fffdfb;min-width:0}
+.field input,.field select{width:100%;min-width:0}
+.row2>*{min-width:0}

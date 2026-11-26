@@ -1,6 +1,6 @@
 "use client";
 import { useSyncExternalStore } from "react";
-import { drinkById, COUPONS } from "./data";
+import { drinkById } from "./data";
 import { addDays, dk, prevDay } from "./dates";
 import { sfx } from "./sound";
 
@@ -11,7 +11,7 @@ export type Settings = { name: string; pandaName: string; catName: string; goalM
 
 /** Same shape as the v1 artifact (minus style/cards, which come later) so data can be migrated. */
 export type State = {
-  v: 2; welcomed: boolean; settings: Settings;
+  v: 2; _t?: number; welcomed: boolean; settings: Settings;
   ml: Record<string, number>; drinks: Record<string, Record<string, number>>; dayGoal: Record<string, number>;
   undo: { date: string; id: string; ml: number; eff: number; paid: boolean }[]; lastDrink: number;
   jdays: Record<string, number>; tdone: Record<string, number>; todos: Todo[]; journal: Entry[];
@@ -45,11 +45,20 @@ const load = () => {
   loaded = true;
   try { const raw = localStorage.getItem(KEY); if (raw) { const d = JSON.parse(raw); S = { ...initial, ...d, settings: { ...initial.settings, ...d.settings }, style: { ...initial.style, ...d.style } }; } } catch { /* ignore */ }
 };
-export const commit = (next: State) => { S = next; try { localStorage.setItem(KEY, JSON.stringify(S)); } catch { /* ignore */ } subs.forEach((f) => f()); };
+export const commit = (next: State, opts: { remote?: boolean } = {}) => { S = opts.remote ? next : { ...next, _t: Date.now() }; try { localStorage.setItem(KEY, JSON.stringify(S)); } catch { /* ignore */ } subs.forEach((f) => f()); };
 export const getState = () => { load(); return S; };
 export function useStore(): State {
   return useSyncExternalStore((cb) => { subs.add(cb); return () => { subs.delete(cb); }; }, getState, () => initial);
 }
+
+/* ---------- remote hooks (filled in by sync.ts when the backend is configured) ---------- */
+export const remote = {
+  inbox: (_kind: "wish" | "redeem", _payload: Record<string, unknown>) => {},
+  notifyOwner: (_text: string) => {},
+};
+/** Replace local state wholesale (used when pulling from the cloud). */
+export const replaceState = (next: Partial<State>) => commit({ ...initial, ...next, settings: { ...initial.settings, ...next.settings }, style: { ...initial.style, ...next.style } } as State, { remote: true });
+export const subscribe = (f: () => void) => { subs.add(f); return () => { subs.delete(f); }; };
 
 /* ---------- owner (Pranto) + action hooks ---------- */
 let owner = false;
@@ -186,11 +195,12 @@ export const actions = {
   },
   deleteTodo: (id: string) => sfx("del") ?? commit({ ...S, todos: S.todos.filter((x) => x.id !== id) }),
   clearDone: () => sfx("swoosh") ?? commit({ ...S, todos: S.todos.filter((x) => !x.done) }),
-  redeem(id: string): Ticket | null {
-    const c = COUPONS.find((x) => x.id === id); if (!c || S.points < c.cost) return null;
+  redeem(c: { id: string; title: string; cost: number }): Ticket | null {
+    if (S.points < c.cost) return null;
     const t: Ticket = { code: code(), couponId: c.id, title: c.title, cost: c.cost, ts: Date.now() };
     commit({ ...S, points: S.points - c.cost, redeemed: [...S.redeemed, t].slice(-100) });
     confetti(); sfx("success");
+    remote.inbox("redeem", { ...t }); remote.notifyOwner(`${S.settings.name} redeemed “${c.title}” (code ${t.code})`);
     return t;
   },
 };

@@ -5,15 +5,20 @@ import { actions, useStore } from "@/lib/store";
 import { sfx } from "@/lib/sound";
 import { useEnv } from "@/lib/platform";
 import { InstallGuide } from "./InstallGuide";
+import { AccountForm } from "./Account";
+import { enableReminders, pushSupported } from "@/lib/push";
 
 export function SettingsSheet() {
   const s = useStore(), { close } = useModal(), env = useEnv();
   const [f, setF] = useState(s.settings);
+  const [push, setPush] = useState("");
   const num = (k: keyof typeof f) => (e: React.ChangeEvent<HTMLInputElement>) => setF({ ...f, [k]: +e.target.value });
   const txt = (k: keyof typeof f) => (e: React.ChangeEvent<HTMLInputElement>) => setF({ ...f, [k]: e.target.value });
   return (
     <>
       <h2>Settings</h2>
+      <h3 style={{ marginTop: 6 }}>Account &amp; sync</h3>
+      <AccountForm />
       <label className="field">Your name<input type="text" value={f.name} onChange={txt("name")} /></label>
       <div className="row2">
         <label className="field">Panda&apos;s name<input type="text" value={f.pandaName} onChange={txt("pandaName")} /></label>
@@ -30,6 +35,8 @@ export function SettingsSheet() {
       <label className="field">Remind every (minutes)<input type="number" min={15} max={240} step={5} value={f.interval} onChange={num("interval")} /></label>
       <label className="switch">Reminders<input type="checkbox" checked={f.remind} onChange={(e) => setF({ ...f, remind: e.target.checked })} /></label>
       <label className="switch">Sound effects<input type="checkbox" checked={f.sound} onChange={(e) => { setF({ ...f, sound: e.target.checked }); actions.updateSettings({ sound: e.target.checked }); if (e.target.checked) sfx("pop", true); }} /></label>
+      {pushSupported() && <button className="btn ghost" style={{ width: "100%" }} onClick={async () => { const r = await enableReminders(); setPush(r === "granted" ? "Reminders are on for this phone." : r === "signin" ? "Sign in above first, then try again." : r === "denied" ? "Notifications are blocked in your phone settings." : "This browser can't receive reminders."); }}>Turn on reminders for this phone</button>}
+      {push && <p className="muted small" style={{ fontWeight: 700 }}>{push}</p>}
       {env && !env.standalone && <><h3 style={{ marginTop: 14 }}>Install the app</h3><InstallGuide env={env} /></>}
       <div className="btns"><button className="btn ghost" onClick={close}>Cancel</button><button className="btn pink" style={{ flex: 1 }} onClick={() => { actions.updateSettings(f); close(); }}>Save</button></div>
     </>

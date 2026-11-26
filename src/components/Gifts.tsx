@@ -1,20 +1,20 @@
 "use client";
-import { DressIcon, MailLove01Icon, Ticket01Icon, PawPrintIcon } from "@hugeicons/core-free-icons";
 import { motion } from "motion/react";
+import { DressIcon, MailLove01Icon, Ticket01Icon, PawPrintIcon } from "@hugeicons/core-free-icons";
 import { Icon } from "./Icon";
 import { useModal } from "./Modal";
-import { COUPONS } from "@/lib/data";
+import { OwnerPanel } from "./Owner";
+import { COUPON_ICONS, type Coupon } from "@/lib/data";
 import { fmtDate } from "@/lib/dates";
-import { actions, useStore, type Ticket } from "@/lib/store";
+import { useCoupons } from "@/lib/shared";
+import { actions, useOwner, useStore, type Ticket } from "@/lib/store";
 
-const couponIcon = (id: string) => COUPONS.find((c) => c.id === id)?.icon ?? Ticket01Icon;
-
-function BigTicket({ t }: { t: Ticket }) {
+export function BigTicket({ t, icon }: { t: Ticket; icon: Coupon["icon"] }) {
   const { close } = useModal();
   return (
     <>
       <motion.div className="big-ticket" initial={{ scale: 0.6, rotate: -6, opacity: 0 }} animate={{ scale: 1, rotate: 0, opacity: 1 }} transition={{ type: "spring", stiffness: 300, damping: 16 }}>
-        <div className="e" style={{ color: "var(--pink)" }}><Icon icon={couponIcon(t.couponId)} size={54} stroke={1.6} /></div>
+        <div className="e" style={{ color: "var(--pink)" }}><Icon icon={COUPON_ICONS[icon] ?? Ticket01Icon} size={54} stroke={1.6} /></div>
         <div className="t">{t.title}</div>
         <div className="code">{t.code}</div>
         <div className="muted small" style={{ fontWeight: 700, marginTop: 6 }}>Redeemed {fmtDate(t.ts)} · show this to Pranto</div>
@@ -25,15 +25,16 @@ function BigTicket({ t }: { t: Ticket }) {
 }
 
 export function Gifts({ go }: { go: (t: "style") => void }) {
-  const s = useStore(), { open, close } = useModal();
-  const tryRedeem = (c: (typeof COUPONS)[number]) => {
+  const s = useStore(), owner = useOwner(), coupons = useCoupons(), { open, close } = useModal();
+  const iconFor = (id: string) => coupons.find((c) => c.id === id)?.icon ?? "gift";
+  const tryRedeem = (c: Coupon) => {
     if (s.points < c.cost) {
       open(<><h2>{c.title}</h2><p className="muted">You need <b>{c.cost - s.points}</b> more paw points. Keep sipping!</p><button className="btn primary" style={{ width: "100%" }} onClick={close}>Okay!</button></>);
       return;
     }
     open(<><h2>Redeem {c.title}?</h2><p className="muted">This uses <b>{c.cost}</b> of your {s.points} paw points.</p>
       <div className="btns"><button className="btn ghost" onClick={close}>Not yet</button>
-        <button className="btn pink" style={{ flex: 1 }} onClick={() => { const t = actions.redeem(c.id); if (t) open(<BigTicket t={t} />); }}>Redeem it!</button></div></>);
+        <button className="btn pink" style={{ flex: 1 }} onClick={() => { const t = actions.redeem(c); if (t) open(<BigTicket t={t} icon={c.icon} />); }}>Redeem it!</button></div></>);
   };
   return (
     <section className="view">
@@ -46,9 +47,9 @@ export function Gifts({ go }: { go: (t: "style") => void }) {
         <h3 style={{ display: "flex", alignItems: "center" }}>Love coupons<Icon icon={MailLove01Icon} size={20} /></h3>
         <p className="muted small" style={{ marginTop: -4 }}>Spend paw points on real treats. Redeem one, then show Pranto the ticket.</p>
         <div className="coupons">
-          {COUPONS.map((c) => (
+          {coupons.map((c) => (
             <motion.button whileTap={{ scale: 0.95, rotate: -1 }} key={c.id} className={`coupon ${s.points < c.cost ? "locked" : ""}`} onClick={() => tryRedeem(c)}>
-              <span className="e"><Icon icon={c.icon} size={30} stroke={1.7} /></span><span className="t">{c.title}</span>
+              <span className="e"><Icon icon={COUPON_ICONS[c.icon] ?? Ticket01Icon} size={30} stroke={1.7} /></span><span className="t">{c.title}</span>
               <span className="c" style={{ display: "flex", alignItems: "center", gap: 4 }}><Icon icon={PawPrintIcon} size={14} stroke={2.2} />{c.cost}</span>
             </motion.button>
           ))}
@@ -57,8 +58,8 @@ export function Gifts({ go }: { go: (t: "style") => void }) {
       <div className="card">
         <h3 style={{ display: "flex", alignItems: "center" }}>My tickets<Icon icon={Ticket01Icon} size={20} /></h3>
         {s.redeemed.length ? [...s.redeemed].reverse().map((r) => (
-          <button key={r.code} className="ticket" style={{ width: "100%", textAlign: "left" }} onClick={() => open(<BigTicket t={r} />)}>
-            <span className="e"><Icon icon={couponIcon(r.couponId)} size={24} /></span>
+          <button key={r.code} className="ticket" style={{ width: "100%", textAlign: "left" }} onClick={() => open(<BigTicket t={r} icon={iconFor(r.couponId)} />)}>
+            <span className="e"><Icon icon={COUPON_ICONS[iconFor(r.couponId)] ?? Ticket01Icon} size={24} /></span>
             <div><div>{r.title}</div><div className="meta">{fmtDate(r.ts)} · code {r.code}</div></div>
           </button>
         )) : <p className="muted small">Redeemed coupons show up here.</p>}
@@ -74,6 +75,7 @@ export function Gifts({ go }: { go: (t: "style") => void }) {
           <li>Spend points on coupons here, or on outfits &amp; card packs in Style</li>
         </ul>
       </div>
+      {owner && <OwnerPanel />}
     </section>
   );
 }
