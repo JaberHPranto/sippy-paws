@@ -16,7 +16,16 @@ export type State = {
   undo: { date: string; id: string; ml: number; eff: number; paid: boolean }[]; lastDrink: number;
   jdays: Record<string, number>; tdone: Record<string, number>; todos: Todo[]; journal: Entry[];
   points: number; xp: number; awards: Record<string, { goal?: boolean; todo?: number }>; redeemed: Ticket[]; packs: number;
+  /* style + cards (same keys as v1) */
+  style: { panda: Look; cat: Look }; owned: Record<string, number>; scene: string; pose: string; editing: "panda" | "cat"; test: boolean;
+  presets: Preset[]; snaps: Snap[]; wishes: { text: string; ts: number }[];
+  cards: CardInst[]; packCards: Record<string, number>; claimed: Record<string, { t: number; def: SpecialDef }>;
 };
+export type Look = Record<string, string>;
+export type Preset = { id: string; name: string; panda: Look; cat: Look; scene: string };
+export type Snap = { id: string; ts: number; pose: string; scene: string; panda: Look; cat: Look; caption: string; border: string };
+export type CardInst = { u: string; d: string; k: string; t: number; p: string; c: string; s: string; h: number; st: number[] };
+export type SpecialDef = { id: string; name: string; r: "special"; t: string; kind: string; mood: string; pm: string; cm: string; scene: string; p: string; c: string; hp: number; st: number[]; ts: number; moves: [string, string | number, string][]; fl: string };
 
 const KEY = "sippypaws.v2";
 const initial: State = {
@@ -24,6 +33,8 @@ const initial: State = {
   settings: { name: "Rizu", pandaName: "Bao", catName: "Miso", goalMl: 2000, waterMl: 250, remind: true, interval: 60, startHour: 9, endHour: 22, sound: true },
   ml: {}, drinks: {}, dayGoal: {}, undo: [], lastDrink: 0, jdays: {}, tdone: {}, todos: [], journal: [],
   points: 0, xp: 0, awards: {}, redeemed: [], packs: 0,
+  style: { panda: {}, cat: {} }, owned: {}, scene: "sky", pose: "auto", editing: "panda", test: false,
+  presets: [], snaps: [], wishes: [], cards: [], packCards: {}, claimed: {},
 };
 
 let S: State = initial;
@@ -32,13 +43,25 @@ const subs = new Set<() => void>();
 const load = () => {
   if (loaded || typeof window === "undefined") return;
   loaded = true;
-  try { const raw = localStorage.getItem(KEY); if (raw) { const d = JSON.parse(raw); S = { ...initial, ...d, settings: { ...initial.settings, ...d.settings } }; } } catch { /* ignore */ }
+  try { const raw = localStorage.getItem(KEY); if (raw) { const d = JSON.parse(raw); S = { ...initial, ...d, settings: { ...initial.settings, ...d.settings }, style: { ...initial.style, ...d.style } }; } } catch { /* ignore */ }
 };
-const commit = (next: State) => { S = next; try { localStorage.setItem(KEY, JSON.stringify(S)); } catch { /* ignore */ } subs.forEach((f) => f()); };
+export const commit = (next: State) => { S = next; try { localStorage.setItem(KEY, JSON.stringify(S)); } catch { /* ignore */ } subs.forEach((f) => f()); };
 export const getState = () => { load(); return S; };
 export function useStore(): State {
   return useSyncExternalStore((cb) => { subs.add(cb); return () => { subs.delete(cb); }; }, getState, () => initial);
 }
+
+/* ---------- owner (Pranto) + action hooks ---------- */
+let owner = false;
+const ownerSubs = new Set<() => void>();
+export const isOwner = () => owner;
+export const setOwner = (v: boolean) => { owner = v; ownerSubs.forEach((f) => f()); subs.forEach((f) => f()); };
+export const useOwner = () => useSyncExternalStore((cb) => { ownerSubs.add(cb); return () => { ownerSubs.delete(cb); }; }, () => owner, () => false);
+export type ActionCtx = { drink?: boolean; journal?: boolean; todo?: boolean; level?: boolean; style?: boolean; snap?: boolean };
+const after: ((c: ActionCtx) => void)[] = [];
+export const onAction = (f: (c: ActionCtx) => void) => { after.push(f); };
+const emit = (c: ActionCtx) => setTimeout(() => after.forEach((f) => f(c)), 0);
+export const testOn = (s: State) => !!(s.test && owner);
 
 /* ---------- toasts + bubble override (ephemeral) ---------- */
 type Fx = { toasts: { id: number; text: string }[]; say: string | null; confetti: number };
@@ -80,7 +103,7 @@ const code = () => Math.random().toString(36).slice(2, 8).toUpperCase();
 function earn(s: State, n: number, why: string): State {
   const before = levelInfo(s.xp).lvl, next = { ...s, points: s.points + n, xp: s.xp + n };
   toast(`+${n} paw points · ${why}`);
-  if (levelInfo(next.xp).lvl > before) setTimeout(() => { confetti(); sfx("success"); toast(`Bond level ${levelInfo(next.xp).lvl}!`); }, 400);
+  if (levelInfo(next.xp).lvl > before) { setTimeout(() => { confetti(); sfx("success"); toast(`Bond level ${levelInfo(next.xp).lvl}!`); }, 400); emit({ level: true }); }
   return next;
 }
 const DRINK_LINES: Record<string, string[]> = {
@@ -97,6 +120,7 @@ export const who = (s: State, k: "P" | "C") => `<span class="who">${k === "P" ? 
 
 export const actions = {
   finishWelcome: () => commit({ ...S, welcomed: true }),
+  emit,
   updateSettings: (p: Partial<Settings>) => commit({ ...S, settings: { ...S.settings, ...p } }),
   addDrink(id: string, mlIn: number) {
     const d = drinkById(id), k = dk(), goal = goalOf(S, k);
@@ -122,7 +146,7 @@ export const actions = {
       const [w, line] = (DRINK_LINES[id] ?? DRINK_LINES.water)[Math.floor(Math.random() * 2)].split("|");
       say(`${who(s, w as "P" | "C")} ${line}`);
     }
-    commit(s);
+    commit(s); emit({ drink: true });
   },
   undo() {
     const k = dk(), i = S.undo.map((u) => u.date).lastIndexOf(k);
@@ -139,7 +163,7 @@ export const actions = {
     let s: State = { ...S, journal: [{ id: uid(), date: k, ts: Date.now(), mood, prompt, text }, ...S.journal] };
     sfx("chime");
     if (!S.jdays[k]) { s = { ...s, jdays: { ...s.jdays, [k]: 1 } }; s = earn(s, 10, "journal"); } else toast("Saved");
-    commit(s);
+    commit(s); emit({ journal: true });
   },
   deleteEntry: (id: string) => { sfx("del"); commit({ ...S, journal: S.journal.filter((e) => e.id !== id) }); },
   addTodo: (text: string) => sfx("pop") ?? commit({ ...S, todos: [...S.todos, { id: uid(), text, done: false, ts: Date.now() }] }),
@@ -158,7 +182,7 @@ export const actions = {
       s = { ...S, todos: S.todos.map((x) => (x.id === id ? { ...x, done: false, doneAt: undefined, paid: false } : x)), tdone: { ...S.tdone, [day]: Math.max(0, (S.tdone[day] ?? 1) - 1) } };
       if (t.paid) s = { ...s, points: Math.max(0, s.points - 3), xp: Math.max(0, s.xp - 3) };
     }
-    commit(s);
+    commit(s); emit({ todo: true });
   },
   deleteTodo: (id: string) => sfx("del") ?? commit({ ...S, todos: S.todos.filter((x) => x.id !== id) }),
   clearDone: () => sfx("swoosh") ?? commit({ ...S, todos: S.todos.filter((x) => !x.done) }),

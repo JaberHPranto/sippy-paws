@@ -7,7 +7,8 @@ import { Stats } from "@/components/Stats";
 import { Journal } from "@/components/Journal";
 import { Todo } from "@/components/Todo";
 import { Gifts } from "@/components/Gifts";
-import { StyleSoon } from "@/components/StyleSoon";
+import { StyleTab, type StyleView } from "@/components/Style";
+import { RevealHost } from "@/components/Cards";
 import { Welcome } from "@/components/Welcome";
 import { ModalProvider } from "@/components/Modal";
 import { Fx } from "@/components/Fx";
@@ -19,6 +20,7 @@ export default function Home() {
   const s = useStore();
   const [ready, setReady] = useState(false);
   const [tab, setTab] = useState<TabId>("home");
+  const [sv, setSv] = useState<StyleView>("dress");
   useEffect(() => { setReady(true); requestAnimationFrame(() => window.scrollTo(0, 0)); return wireTapSounds(); }, []);
   const go = (t: TabId) => { if (t === tab) return; setTab(t); window.scrollTo({ top: 0 }); };
   if (!ready) return null;
@@ -33,15 +35,16 @@ export default function Home() {
           <motion.div key={tab} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.18, ease: "easeOut" }}>
             {tab === "home" && <Today go={go} />}
             {tab === "overview" && <Stats />}
-            {tab === "style" && <StyleSoon />}
+            {tab === "style" && <StyleTab view={sv} setView={setSv} />}
             {tab === "journal" && <Journal />}
             {tab === "todo" && <Todo />}
-            {tab === "rewards" && <Gifts go={go} />}
+            {tab === "rewards" && <Gifts go={(t) => { setSv("dress"); go(t); }} />}
           </motion.div>
         </AnimatePresence>
       </main>
       <TabBar tab={tab} onChange={go} />
       <Fx />
+      <RevealHost goCards={() => { setSv("cards"); go("style"); }} />
       </div>
     </ModalProvider>
     </MotionConfig>

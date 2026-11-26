@@ -3,8 +3,8 @@ import { createContext, useCallback, useContext, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { sfx } from "@/lib/sound";
 
-type Ctx = { open: (node: React.ReactNode) => void; close: () => void };
-const ModalCtx = createContext<Ctx>({ open: () => {}, close: () => {} });
+type Ctx = { open: (node: React.ReactNode) => void; close: () => void; isOpen: boolean };
+const ModalCtx = createContext<Ctx>({ open: () => {}, close: () => {}, isOpen: false });
 export const useModal = () => useContext(ModalCtx);
 
 export function ModalProvider({ children }: { children: React.ReactNode }) {
@@ -13,7 +13,7 @@ export function ModalProvider({ children }: { children: React.ReactNode }) {
   const close = useCallback(() => setNode(null), []);
   const open = useCallback((x: React.ReactNode) => { setNode((cur: React.ReactNode) => { if (!cur) sfx("pop"); return x; }); setN((v) => v + 1); }, []);
   return (
-    <ModalCtx.Provider value={{ open, close }}>
+    <ModalCtx.Provider value={{ open, close, isOpen: !!node }}>
       {children}
       <AnimatePresence>
         {node && (

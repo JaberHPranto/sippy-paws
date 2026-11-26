@@ -221,7 +221,7 @@ const DUO = {
   nap:{name:"Nap Time", desc:"Zzz snoozing", icon:"😴", pm:"sleepy", cm:"sleepy", close:true},
   tea:{name:"Tea Party", desc:"Sip sip hooray", icon:"🍵", pm:"happy", cm:"wink", hand:"teacup"},
   wink:{name:"Wink Wink", desc:"Cheeky twins", icon:"😉", pm:"wink", cm:"wink"},
-  pout:{name:"Thirsty Pout", desc:"Water please 🥺", icon:"🥺", pm:"sad", cm:"sad"},
+  pout:{name:"Thirsty Pout", desc:"Water please", icon:"🥺", pm:"sad", cm:"sad"},
 };
 function duoStage(pose, scene, pl, cl){
   const d = DUO[pose] || DUO.together;
@@ -233,4 +233,4 @@ function duoStage(pose, scene, pl, cl){
     ${d.heart ? heartAt(141, 48, 1.5, "#ff6f8c", "heart") : ""}</svg>`;
 }
 
-export { charSVG, pandaSVG, catSVG, sceneSVG, ITEMS, ITEM, SLOTS, SLOT_NAME };
+export { charSVG, mascot, sceneSVG, soloStage, duoStage, DUO, ITEMS, ITEM, SLOTS, SLOT_NAME };
