@@ -1,26 +1,44 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg: #eaf6ee;
+  --card: #ffffff;
+  --ink: #23324a;
+  --muted: #6b7a90;
+  --green: #3fae78;
+  --green-d: #2c8a5c;
+  --water: #5cc0ee;
+  --water-d: #2f9bd0;
+  --blush: #ffd9e2;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-bg: var(--bg);
+  --color-card: var(--card);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-brand: var(--green);
+  --color-brand-d: var(--green-d);
+  --color-water: var(--water);
+  --color-water-d: var(--water-d);
+  --color-blush: var(--blush);
+  --font-display: "Fredoka Variable", system-ui, sans-serif;
+  --font-sans: "Nunito Variable", system-ui, sans-serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
+html, body { height: 100%; }
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: "Nunito Variable", system-ui, sans-serif;
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior-y: none;
 }
+.safe-b { padding-bottom: max(env(safe-area-inset-bottom), 8px); }
+.safe-t { padding-top: max(env(safe-area-inset-top), 12px); }
+
+@keyframes bob { 0%,100% { transform: translateY(0) } 50% { transform: translateY(-6px) } }
+.bob { animation: bob 3s ease-in-out infinite; }
+
+.no-scrollbar { scrollbar-width: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
