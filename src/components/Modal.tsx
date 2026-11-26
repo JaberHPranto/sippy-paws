@@ -23,7 +23,7 @@ export function ModalProvider({ children }: { children: React.ReactNode }) {
               drag="y" dragConstraints={{ top: 0, bottom: 0 }} dragElastic={{ top: 0, bottom: 0.6 }}
               onDragEnd={(_, i) => { if (i.offset.y > 110 || i.velocity.y > 600) close(); }}>
               <div className="grab" />
-              <motion.div key={n} initial={{ opacity: 0.4 }} animate={{ opacity: 1 }} transition={{ duration: 0.15 }}>{node}</motion.div>
+              <motion.div key={n} className="sheet-body" initial={{ opacity: 0.4 }} animate={{ opacity: 1 }} transition={{ duration: 0.15 }}>{node}</motion.div>
             </motion.div>
           </motion.div>
         )}

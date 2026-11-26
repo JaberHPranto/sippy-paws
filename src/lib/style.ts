@@ -3,7 +3,7 @@ import { HatIcon, GlassesIcon, NecklaceIcon, TShirtIcon, BubbleTea01Icon, Sparkl
 import type { IconSvgElement } from "@hugeicons/react";
 import { ITEM, ITEMS, SLOTS, DUO } from "./mascots";
 import { dk, k2d, pick } from "./dates";
-import { actions, remote, bestStreak, commit, confetti, getState, hitOf, levelInfo, nameOf as herName, partnerOf, testOn, toast, type Look, type State } from "./store";
+import { actions, remote, bestStreak, commit, confetti, getState, hitOf, levelInfo, nameOf as herName, partnerOf, isOwner, toast, type Look, type State } from "./store";
 import { sfx } from "./sound";
 
 export type Item = { id: string; slot: string; name: string; desc: string; lvl?: number; cost?: number; free?: boolean };
@@ -19,10 +19,10 @@ export const DUOS = DUO as Record<string, { name: string; desc: string }>;
 export const BORDERS: [string, string][] = [["washi", "Washi tape"], ["stamp", "Postal stamp"], ["mint", "Mint frame"], ["plain", "Classic"]];
 
 export const realLevel = (s: State) => levelInfo(s.xp).lvl;
-export const effLevel = (s: State) => (testOn(s) ? 10 : realLevel(s));
+export const effLevel = (s: State) => (isOwner() ? 10 : realLevel(s));
 export function owns(s: State, id: string) {
   const it = ITEM_BY[id]; if (!it) return false;
-  if (it.free || testOn(s)) return true;
+  if (it.free || isOwner()) return true;
   if (it.lvl) return effLevel(s) >= it.lvl;
   return !!s.owned[id];
 }
@@ -35,7 +35,7 @@ export const sceneNow = (s: State) => (owns(s, s.scene) ? s.scene : "sky");
 export const wearables = () => ALL_ITEMS.filter((i) => i.slot !== "scene");
 export const shopItems = () => ALL_ITEMS.filter((i) => i.cost);
 const dayIndex = () => Math.floor(k2d(dk()).getTime() / 864e5);
-export function featured(s: State) { const pool = shopItems().filter((i) => !s.owned[i.id]); return pool.length ? pool[dayIndex() % pool.length] : null; }
+export function featured(s: State) { const pool = shopItems().filter((i) => !owns(s, i.id)); return pool.length ? pool[dayIndex() % pool.length] : null; }
 export const priceOf = (s: State, it: Item) => { const f = featured(s); return f && f.id === it.id ? Math.round((it.cost ?? 0) * 0.75) : it.cost ?? 0; };
 export function untilMidnight() { const n = new Date(), m = new Date(n.getFullYear(), n.getMonth(), n.getDate() + 1); const mins = Math.max(0, Math.round((m.getTime() - n.getTime()) / 60000)); return `${Math.floor(mins / 60)}h ${String(mins % 60).padStart(2, "0")}m`; }
 export const nameOf = (s: State, kind: "panda" | "cat") => (kind === "panda" ? s.settings.pandaName : s.settings.catName);
@@ -72,7 +72,6 @@ export const style = {
   setEditing: (k: "panda" | "cat") => set({ editing: k }),
   setPose: (p: string) => set({ pose: p }),
   setScene: (id: string) => { if (owns(S(), id)) { sfx("pop"); set({ scene: id }); } },
-  setTest: (on: boolean) => { set({ test: on }); toast(on ? "Everything unlocked (just for you)" : "Test mode off"); },
   equip(kind: "panda" | "cat", id: string) {
     const s = S(), it = ITEM_BY[id]; if (!it || !owns(s, id)) return;
     sfx("pop");
@@ -90,10 +89,10 @@ export const style = {
   sync() { const s = S(), other = s.editing === "panda" ? "cat" : "panda"; set({ style: { ...s.style, [other]: { ...activeLook(s, s.editing) } } }); sfx("chime"); toast("Twinning!"); },
   buy(id: string): boolean {
     const s = S(), it = ITEM_BY[id]; if (!it || owns(s, id)) return false;
-    const price = priceOf(s, it), free = testOn(s);
-    if (!free && s.points < price) return false;
+    const price = priceOf(s, it);
+    if (s.points < price) return false;
     const k = s.editing;
-    const next: Partial<State> = { owned: { ...s.owned, [id]: Date.now() }, points: free ? s.points : s.points - price };
+    const next: Partial<State> = { owned: { ...s.owned, [id]: Date.now() }, points: s.points - price };
     if (it.slot === "scene") next.scene = id; else next.style = { ...s.style, [k]: { ...s.style[k], [it.slot]: id } };
     set(next); confetti(); sfx("success"); toast(`${it.name} unlocked!`);
     return true;

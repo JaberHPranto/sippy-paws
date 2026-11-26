@@ -18,8 +18,10 @@ export function SettingsSheet() {
   const txt = (k: keyof typeof f) => (e: React.ChangeEvent<HTMLInputElement>) => setF({ ...f, [k]: e.target.value });
   return (
     <>
-      <h2>Settings</h2>
-      <h3 style={{ marginTop: 6 }}>Account &amp; sync</h3>
+      <div className="sheet-head">
+        <h2>Settings</h2>
+        <h3 style={{ marginTop: 6 }}>Account &amp; sync</h3>
+      </div>
       <AccountForm />
       <div className="row2">
         <label className="field">Your name<input type="text" value={f.name} onChange={txt("name")} /></label>

@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { motion } from "motion/react";
-import { DressIcon, ShoppingBag02Icon, WardrobeIcon, CameraIcon, Cards02Icon, DiceFaces03Icon, FloppyDiskIcon, PawPrintIcon, Clock01Icon, StarIcon, ScissorIcon, Mail01Icon, LockIcon, Tick02Icon, FavouriteIcon, Search01Icon, Cancel01Icon, Delete02Icon, TestTubeIcon, SparklesIcon } from "@hugeicons/core-free-icons";
+import { DressIcon, ShoppingBag02Icon, WardrobeIcon, CameraIcon, Cards02Icon, DiceFaces03Icon, FloppyDiskIcon, PawPrintIcon, Clock01Icon, StarIcon, ScissorIcon, Mail01Icon, LockIcon, Tick02Icon, FavouriteIcon, Search01Icon, Cancel01Icon, Delete02Icon, SparklesIcon } from "@hugeicons/core-free-icons";
 import type { IconSvgElement } from "@hugeicons/react";
 import { Icon } from "./Icon";
 import { useModal } from "./Modal";
@@ -9,7 +9,7 @@ import { Cards } from "./Cards";
 import { charSVG, sceneSVG, soloStage, duoStage } from "@/lib/mascots";
 import { moodNow } from "@/lib/mood";
 import { fmtDate } from "@/lib/dates";
-import { levelInfo, partnerOf, testOn, useOwner, useStore, type Snap, type State } from "@/lib/store";
+import { levelInfo, partnerOf, isOwner, useStore, type Snap, type State } from "@/lib/store";
 import { ALL_ITEMS, BORDERS, DUOS, DUO_ICON, ITEM_BY, POSES, SLOT_ICON, SLOT_LIST, activeLook, badges, effLevel, featured, nameOf, outfitLine, owns, priceOf, sceneNow, shopItems, slotName, style, untilMidnight, wearables, type Item } from "@/lib/style";
 
 export type StyleView = "dress" | "shop" | "closet" | "look" | "cards";
@@ -30,23 +30,12 @@ export function StyleTab({ view, setView }: { view: StyleView; setView: (v: Styl
           </button>
         ))}
       </div>
-      <TestBar />
       {view === "dress" && <Dress goShop={goShop} goLook={() => setView("look")} />}
       {view === "shop" && <Shop filter={shopF} setFilter={setShopF} />}
       {view === "closet" && <Closet goShop={goShop} />}
       {view === "look" && <Look goShop={goShop} />}
       {view === "cards" && <Cards />}
     </section>
-  );
-}
-
-export function TestBar() {
-  const s = useStore(), owner = useOwner();
-  if (!owner) return null;
-  const on = testOn(s);
-  return (
-    <div className="testbar"><span style={{ display: "flex", alignItems: "center", gap: 6 }}><Icon icon={TestTubeIcon} size={16} stroke={2} />Test mode {on ? "ON: everything unlocked for you only" : "OFF"}</span>
-      <button className={`btn ${on ? "ghost" : "pink"}`} style={{ padding: "8px 12px", fontSize: 13 }} onClick={() => style.setTest(!s.test)}>{on ? "Turn off" : "Unlock all"}</button></div>
   );
 }
 
@@ -65,7 +54,7 @@ function ItemCard({ it, kind, mode, goShop }: { it: Item; kind: K; mode: "dress"
   const have = owns(s, it.id), eq = it.slot === "scene" ? sceneNow(s) === it.id : activeLook(s, kind)[it.slot] === it.id;
   let btn: React.ReactNode;
   if (mode === "shop") btn = have ? <button className="act owned" disabled>Owned ✓</button>
-    : <button className="act buy" onClick={() => open(<BuySheet it={it} />)}>{testOn(s) ? "Free (test)" : <span style={{ display: "inline-flex", gap: 4, alignItems: "center" }}><Icon icon={PawPrintIcon} size={13} stroke={2.2} />{priceOf(s, it)}</span>}</button>;
+    : <button className="act buy" onClick={() => open(<BuySheet it={it} />)}><span style={{ display: "inline-flex", gap: 4, alignItems: "center" }}><Icon icon={PawPrintIcon} size={13} stroke={2.2} />{priceOf(s, it)}</span></button>;
   else if (have) btn = <button className={`act ${eq ? "unequip" : "equip"}`} onClick={() => style.equip(kind, it.id)}>{eq ? (it.slot === "scene" ? "In use" : "Unequip") : it.slot === "scene" ? "Use" : "Equip"}</button>;
   else if (it.lvl) btn = <button className="act locked" disabled style={{ display: "inline-flex", gap: 4, alignItems: "center", justifyContent: "center" }}><Icon icon={LockIcon} size={13} stroke={2.2} />Bond Lv {it.lvl}</button>;
   else btn = <button className="act buy" onClick={() => goShop?.(it.slot)} style={{ display: "inline-flex", gap: 4, alignItems: "center", justifyContent: "center" }}><Icon icon={PawPrintIcon} size={13} stroke={2.2} />{it.cost} · Boutique</button>;
@@ -80,28 +69,28 @@ function ItemCard({ it, kind, mode, goShop }: { it: Item; kind: K; mode: "dress"
 
 function BuySheet({ it }: { it: Item }) {
   const s = useStore(), { close, open } = useModal();
-  const price = priceOf(s, it), free = testOn(s), k = s.editing;
-  if (!free && s.points < price) return <><h2>{it.name}</h2><p className="muted">You need <b>{price - s.points}</b> more paw points. Keep sipping!</p><button className="btn primary" style={{ width: "100%" }} onClick={close}>Okay!</button></>;
+  const price = priceOf(s, it), k = s.editing;
+  if (s.points < price) return <><h2>{it.name}</h2><p className="muted">You need <b>{price - s.points}</b> more paw points. Keep sipping!</p><button className="btn primary" style={{ width: "100%" }} onClick={close}>Okay!</button></>;
   const look = it.slot === "scene" ? activeLook(s, k) : { ...activeLook(s, k), [it.slot]: it.id };
   return (
     <>
       <h2>Unlock {it.name}?</h2>
       <div className="stagebox" style={{ margin: "8px 0" }} dangerouslySetInnerHTML={html(it.slot === "scene" ? svgScene(it.id) : soloStage(k, "happy", look, sceneNow(s)))} />
-      <p className="muted">{free ? "Free in test mode." : <>This uses <b>{price}</b> of your {s.points} paw points.</>}</p>
+      <p className="muted">This uses <b>{price}</b> of your {s.points} paw points.</p>
       <div className="btns"><button className="btn ghost" onClick={close}>Not yet</button><button className="btn pink" style={{ flex: 1 }} onClick={() => { if (style.buy(it.id)) close(); else open(<BuySheet it={it} />); }}>Unlock!</button></div>
     </>
   );
 }
 
 function BondCard() {
-  const s = useStore(), L = levelInfo(s.xp), lv = effLevel(s), t = testOn(s);
+  const s = useStore(), L = levelInfo(s.xp), lv = effLevel(s), t = isOwner();
   return (
     <div className="card"><div className="card-h">
       <div className="seg">
         <button className={s.editing === "panda" ? "on" : ""} onClick={() => style.setEditing("panda")}>{s.settings.pandaName}</button>
         <button className={s.editing === "cat" ? "on" : ""} onClick={() => style.setEditing("cat")}>{s.settings.catName}</button>
       </div>
-      <span className="tag lv" style={{ display: "inline-flex", gap: 4, alignItems: "center" }}><Icon icon={FavouriteIcon} size={12} stroke={2.2} />Bond Lv.{lv}{t ? " (test)" : ""}</span></div>
+      <span className="tag lv" style={{ display: "inline-flex", gap: 4, alignItems: "center" }}><Icon icon={FavouriteIcon} size={12} stroke={2.2} />Bond Lv.{lv}</span></div>
       <div className="lvl" style={{ marginTop: 0 }}><span className="small muted">Warm affinity</span><div className="bar"><i style={{ width: `${t ? 100 : Math.round((L.into / L.need) * 100)}%` }} /></div><span className="small muted">{t ? "MAX" : `${L.into}/${L.need} XP`}</span></div>
     </div>
   );
@@ -187,7 +176,7 @@ function Shop({ filter, setFilter }: { filter: string; setFilter: (v: string) =>
           <div className="stagebox"><div dangerouslySetInnerHTML={html(f.slot === "scene" ? svgScene(f.id) : soloStage(k, "happy", fLook, sceneNow(s)))} />
             <div className="feat-lbl"><b>{f.name}</b><span>{f.desc}</span></div></div>
           <button className="btn primary" style={{ width: "100%", marginTop: 12 }} onClick={() => open(<BuySheet it={f} />)}>
-            Unlock item · {testOn(s) ? "free (test)" : <>{priceOf(s, f)} <s style={{ opacity: 0.6 }}>{f.cost}</s></>}
+            Unlock item · {priceOf(s, f)} <s style={{ opacity: 0.6 }}>{f.cost}</s>
           </button>
         </div>
       ) : <div className="card"><div className="empty">You own every design in the boutique! Ask {partnerOf(s)} for something new in the wishbox below.</div></div>}

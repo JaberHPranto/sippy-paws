@@ -7,7 +7,7 @@ import { Icon } from "./Icon";
 import { useModal } from "./Modal";
 import { COZ, COZY, DUST, MOM, MOMENTS, PACK_COST, RARITY, cardBack, cardHTML, claimSpecials, clearReveals, latestInst, openPack, packArt, pendingSpecials, recycleDupes, setInfo, shiftReveal, specialList, useReveals } from "@/lib/cards";
 import { dk } from "@/lib/dates";
-import { confetti, partnerOf, testOn, useStore } from "@/lib/store";
+import { confetti, partnerOf, isOwner, useStore } from "@/lib/store";
 import { sfx } from "@/lib/sound";
 
 type Set = "moments" | "cozy" | "special";
@@ -85,7 +85,7 @@ export function Cards() {
   const dupes = Object.values(s.packCards).reduce((a, c) => a + Math.max(0, c - 1), 0);
   const today = s.cards.filter((c) => c.k === dk());
   const info = setInfo(s, set), have = info.list.filter(info.have).length;
-  const packLabel = testOn(s) ? "Open pack (free · test)" : s.packs > 0 ? `Open free pack (${s.packs})` : `Buy pack · ${PACK_COST} paw points`;
+  const packLabel = isOwner() ? "Open pack (free)" : s.packs > 0 ? `Open free pack (${s.packs})` : `Buy pack · ${PACK_COST} paw points`;
   const buyPack = () => {
     const r = openPack();
     if (!r.ok) { open(<><h2>Not enough paw points</h2><p className="muted">A pack costs {PACK_COST}. Hit today&apos;s water goal for a free one!</p></>); return; }

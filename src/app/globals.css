@@ -6,6 +6,13 @@
   --gold:#ffc94d; --shadow:0 6px 20px rgba(120,70,90,.08);
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+/* Soft pink pill scrollbars. WebKit/Blink get the rounded pill; Firefox falls back to thin + colored. */
+::-webkit-scrollbar{width:8px;height:8px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--pink2);border-radius:99px;border:2px solid transparent;background-clip:padding-box}
+::-webkit-scrollbar-thumb:hover{background-color:var(--pink)}
+::-webkit-scrollbar-button{display:none}
+@supports not selector(::-webkit-scrollbar){*{scrollbar-width:thin;scrollbar-color:var(--pink2) transparent}}
 html,body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--fb);font-size:16px}
 body{padding:env(safe-area-inset-top) env(safe-area-inset-right) calc(84px + env(safe-area-inset-bottom)) env(safe-area-inset-left);min-height:100vh}
 h1,h2,h3,.brand,.big{font-family:var(--fd)}
@@ -222,7 +229,9 @@ input[type=text],input[type=number],select{border:2px solid var(--line);border-r
 .tabs button.on span{filter:none;opacity:1}
 .modal{position:fixed;inset:0;z-index:20;background:rgba(61,47,59,.35);display:flex;align-items:flex-end;justify-content:center;animation:fade .2s}
 @keyframes fade{from{opacity:0}}
-.sheet{background:#fff;width:100%;max-width:560px;border-radius:26px 26px 0 0;padding:20px 18px calc(20px + env(safe-area-inset-bottom));max-height:88vh;overflow:auto;animation:up .25s ease-out}
+.sheet{background:#fff;width:100%;max-width:560px;border-radius:26px 26px 0 0;padding-top:20px;max-height:88vh;display:flex;flex-direction:column;overflow:hidden;animation:up .25s ease-out}
+.sheet-body{overflow:auto;overscroll-behavior:contain;padding:0 18px calc(20px + env(safe-area-inset-bottom))}
+.sheet-body>h2,.sheet-head{position:sticky;top:0;z-index:2;background:#fff;padding-bottom:4px}
 @keyframes up{from{transform:translateY(40px)}}
 .sheet h2{margin:0 0 6px;font-size:22px}
 .field{display:flex;flex-direction:column;gap:4px;margin:10px 0;font-weight:700;font-size:14px}
@@ -256,7 +265,6 @@ input[type=text],input[type=number],select{border:2px solid var(--line);border-r
 .seg button{color:var(--muted)}
 .tag{display:inline-block;font-size:11px;font-weight:800;padding:3px 9px;border-radius:99px;background:var(--soft);color:var(--muted);white-space:nowrap}
 .tag.lv{background:#fff3cd;color:#8a6500}.tag.shop{background:var(--pink2);color:#c2405b}.tag.own{background:var(--mint2);color:#2f8a5f}
-.testbar{background:#efe6ff;color:#5b3fa0;border-radius:16px;padding:10px 12px;font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:8px}
 .stagebox{position:relative;border-radius:18px;overflow:hidden;background:var(--soft)}
 .stagebox svg{width:100%;height:auto;display:block}
 .stage-wrap{cursor:pointer}

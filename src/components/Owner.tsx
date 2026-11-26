@@ -1,14 +1,14 @@
 "use client";
 import { useState } from "react";
-import { WrenchIcon, MailLove01Icon, TestTubeIcon, ScissorIcon, Ticket01Icon, Add01Icon, Cancel01Icon } from "@hugeicons/core-free-icons";
+import { WrenchIcon, MailLove01Icon, ScissorIcon, Ticket01Icon, Add01Icon, Cancel01Icon } from "@hugeicons/core-free-icons";
 import { Icon } from "./Icon";
 import { useModal } from "./Modal";
 import { TiltCard } from "./Cards";
 import { COUPON_ICONS, type Coupon, type CouponIconKey } from "@/lib/data";
 import { buildSpecial, cardHTML, specialList } from "@/lib/cards";
 import { useCoupons } from "@/lib/shared";
-import { getState, testOn, toast, useStore } from "@/lib/store";
-import { ALL_ITEMS, style } from "@/lib/style";
+import { getState, toast, useStore } from "@/lib/store";
+import { ALL_ITEMS } from "@/lib/style";
 import { saveShared, useCloud } from "@/lib/sync";
 
 /** Only the owner sees this (role = owner in Supabase). */
@@ -63,10 +63,6 @@ export function OwnerPanel() {
         <button className="btn pink" style={{ flex: 1 }} onClick={sendSpecial}>Send to her</button>
       </div>
       {sentSpecials.length > 0 && <div className="muted small" style={{ marginTop: 10 }}>Sent so far: {sentSpecials.map((x) => x.name).join(" · ")}</div>}
-
-      <h3 style={{ marginTop: 18, display: "flex", alignItems: "center", gap: 6 }}><Icon icon={TestTubeIcon} size={18} />Testing</h3>
-      <button className="btn ghost" style={{ width: "100%" }} onClick={() => style.setTest(!s.test)}>{testOn(s) ? "Turn off test mode" : "Unlock all levels & items (test mode)"}</button>
-      <p className="muted small">Only changes your own account. Her levels, points and items stay as they are. In test mode every Paw Card shows in your binder and packs are free.</p>
 
       <h3 style={{ marginTop: 18, display: "flex", alignItems: "center", gap: 6 }}><Icon icon={ScissorIcon} size={18} />Outfit wishes from her</h3>
       {wishes.length ? wishes.map((w) => <div key={w.id} className="dline"><span>“{String(w.payload.text)}”</span><span className="v small">{new Date(w.created_at).toLocaleDateString()}</span></div>) : <div className="muted small">No wishes yet.</div>}

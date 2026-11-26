@@ -5,7 +5,7 @@ import { DropletIcon, Sofa01Icon, SparklesIcon, FavouriteIcon, PawPrintIcon } fr
 import { mascot, sceneSVG, soloStage, ITEM } from "./mascots";
 import { iconSVG, esc } from "./iconstr";
 import { addDays, dk, fmtDate, pick, prevDay } from "./dates";
-import { commit, confetti, getState, goalOf, hitOf, isOwner, mlOf, onAction, partnerOf, testOn, toast, waterStreak, type CardInst, type SpecialDef, type State } from "./store";
+import { commit, confetti, getState, goalOf, hitOf, isOwner, mlOf, onAction, partnerOf, toast, waterStreak, type CardInst, type SpecialDef, type State } from "./store";
 import { activeLook, realLevel, sceneNow } from "./style";
 import { sfx } from "./sound";
 
@@ -117,7 +117,7 @@ function rollRarity(minRare: boolean) {
 }
 export type PackResult = { ok: true; pulls: any[]; dupes: boolean[] } | { ok: false };
 export function openPack(): PackResult {
-  const s = getState(), free = testOn(s), usePack = !free && s.packs > 0;
+  const s = getState(), free = isOwner(), usePack = !free && s.packs > 0;
   if (!free && !usePack && s.points < PACK_COST) return { ok: false };
   const pulls = [0, 1, 2].map((i) => { const r = rollRarity(i === 2); const opts = COZY.filter((d) => d.r === r); return pick(opts.length ? opts : COZY); });
   const pc = { ...s.packCards }, dupes = pulls.map((d) => (pc[d.id] || 0) > 0);
@@ -140,15 +140,15 @@ export function claimSpecials() {
 
 /* ---------- binder ---------- */
 export function setInfo(s: State, set: string) {
-  if (set === "moments") return { list: MOMENTS, have: (d) => testOn(s) || s.cards.some((c) => c.d === d.id) };
-  if (set === "cozy") return { list: COZY, have: (d) => testOn(s) || (s.packCards[d.id] || 0) > 0 };
+  if (set === "moments") return { list: MOMENTS, have: (d) => isOwner() || s.cards.some((c) => c.d === d.id) };
+  if (set === "cozy") return { list: COZY, have: (d) => isOwner() || (s.packCards[d.id] || 0) > 0 };
   return { list: specialList(s), have: (d) => !!s.claimed[d.id] };
 }
 export function latestInst(s: State, set: string, d) {
   if (set === "moments") {
     const all = s.cards.filter((c) => c.d === d.id);
     if (all.length) return all[all.length - 1];
-    if (!testOn(s)) return null;
+    if (!isOwner()) return null;
     const st = dayStats(s, dk());
     return { d: d.id, t: Date.now(), p: lookStr(activeLook(s, "panda")), c: lookStr(activeLook(s, "cat")), s: sceneNow(s), h: st.hp, st: st.st };
   }

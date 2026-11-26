@@ -2,6 +2,7 @@
 import { motion } from "motion/react";
 import { DropletIcon, ChartLineData01Icon, DressIcon, BookOpen01Icon, CheckmarkSquare02Icon, GiftIcon } from "@hugeicons/core-free-icons";
 import { Icon } from "./Icon";
+import { useOwner } from "@/lib/store";
 
 export const TABS = [
   { id: "home", label: "Today", icon: DropletIcon },
@@ -14,9 +15,10 @@ export const TABS = [
 export type TabId = (typeof TABS)[number]["id"];
 
 export function TabBar({ tab, onChange }: { tab: TabId; onChange: (t: TabId) => void }) {
+  const owner = useOwner();
   return (
     <nav className="tabs"><div className="tabs-in">
-      {TABS.map((t) => {
+      {TABS.filter((t) => owner || t.id !== "rewards").map((t) => {
         const on = tab === t.id;
         return (
           <button key={t.id} className={on ? "on" : ""} onClick={() => onChange(t.id)}>

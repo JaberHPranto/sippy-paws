@@ -17,7 +17,7 @@ export type State = {
   jdays: Record<string, number>; tdone: Record<string, number>; todos: Todo[]; journal: Entry[];
   points: number; xp: number; awards: Record<string, { goal?: boolean; todo?: number }>; redeemed: Ticket[]; packs: number;
   /* style + cards (same keys as v1) */
-  style: { panda: Look; cat: Look }; owned: Record<string, number>; scene: string; pose: string; editing: "panda" | "cat"; test: boolean;
+  style: { panda: Look; cat: Look }; owned: Record<string, number>; scene: string; pose: string; editing: "panda" | "cat";
   presets: Preset[]; snaps: Snap[]; wishes: { text: string; ts: number }[];
   cards: CardInst[]; packCards: Record<string, number>; claimed: Record<string, { t: number; def: SpecialDef }>;
 };
@@ -33,7 +33,7 @@ const initial: State = {
   settings: { name: "", partnerName: "", favDrinks: [], pandaName: "Bao", catName: "Miso", goalMl: 2000, waterMl: 250, remind: true, interval: 60, startHour: 9, endHour: 22, sound: true },
   ml: {}, drinks: {}, dayGoal: {}, undo: [], lastDrink: 0, jdays: {}, tdone: {}, todos: [], journal: [],
   points: 0, xp: 0, awards: {}, redeemed: [], packs: 0,
-  style: { panda: {}, cat: {} }, owned: {}, scene: "sky", pose: "auto", editing: "panda", test: false,
+  style: { panda: {}, cat: {} }, owned: {}, scene: "sky", pose: "auto", editing: "panda",
   presets: [], snaps: [], wishes: [], cards: [], packCards: {}, claimed: {},
 };
 
@@ -64,13 +64,12 @@ export const subscribe = (f: () => void) => { subs.add(f); return () => { subs.d
 let owner = false;
 const ownerSubs = new Set<() => void>();
 export const isOwner = () => owner;
-export const setOwner = (v: boolean) => { owner = v; ownerSubs.forEach((f) => f()); subs.forEach((f) => f()); };
+export const setOwner = (v: boolean) => { owner = v; S = { ...S }; ownerSubs.forEach((f) => f()); subs.forEach((f) => f()); };
 export const useOwner = () => useSyncExternalStore((cb) => { ownerSubs.add(cb); return () => { ownerSubs.delete(cb); }; }, () => owner, () => false);
 export type ActionCtx = { drink?: boolean; journal?: boolean; todo?: boolean; level?: boolean; style?: boolean; snap?: boolean };
 const after: ((c: ActionCtx) => void)[] = [];
 export const onAction = (f: (c: ActionCtx) => void) => { after.push(f); };
 const emit = (c: ActionCtx) => setTimeout(() => after.forEach((f) => f(c)), 0);
-export const testOn = (s: State) => !!(s.test && owner);
 
 /* ---------- toasts + bubble override (ephemeral) ---------- */
 type Fx = { toasts: { id: number; text: string }[]; say: string | null; confetti: number };
