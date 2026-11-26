@@ -16,5 +16,6 @@ npm run build && npm start   # service worker is disabled in `next dev`
 - [x] PWA shell, manifest, icons, service worker with push handlers
 - [x] Welcome / install flow (iOS Home Screen + reminder permission)
 - [x] Today screen (drinks, ml goal) with Hugeicons tab bar
-- [ ] Port Stats, Style, Journal, To-do, Gifts from the v1 artifact
+- [x] Journal, To-do, Stats, Gifts ported (shared localStorage store, points + bond level)
+- [ ] Port Style (dress-up, boutique, closet, lookbook) and Paw Cards, with Miso
 - [ ] Supabase auth + RLS, `push_subscriptions`, pg_cron sender, VAPID keys

@@ -4,20 +4,28 @@ import { TabBar, type TabId } from "@/components/TabBar";
 import { Today } from "@/components/Today";
 import { Welcome } from "@/components/Welcome";
 import { Placeholder } from "@/components/Placeholder";
-
-const SEEN = "sippypaws.next.welcomed";
+import { Journal } from "@/components/Journal";
+import { Todo } from "@/components/Todo";
+import { Stats } from "@/components/Stats";
+import { Gifts } from "@/components/Gifts";
+import { actions, useStore } from "@/lib/store";
 
 export default function Home() {
+  const s = useStore();
   const [ready, setReady] = useState(false);
-  const [welcomed, setWelcomed] = useState(true);
   const [tab, setTab] = useState<TabId>("today");
-  useEffect(() => { setWelcomed(localStorage.getItem(SEEN) === "1"); setReady(true); }, []);
+  useEffect(() => setReady(true), []);
   if (!ready) return null;
-  if (!welcomed) return <Welcome name="Rizu" onDone={() => { localStorage.setItem(SEEN, "1"); setWelcomed(true); }} />;
+  if (!s.welcomed) return <Welcome name={s.name} onDone={actions.finishWelcome} />;
 
   return (
     <div className="mx-auto min-h-dvh max-w-md pb-28">
-      {tab === "today" ? <Today name="Rizu" /> : <Placeholder title={tab[0].toUpperCase() + tab.slice(1)} />}
+      {tab === "today" && <Today />}
+      {tab === "stats" && <Stats />}
+      {tab === "journal" && <Journal />}
+      {tab === "todo" && <Todo />}
+      {tab === "gifts" && <Gifts />}
+      {tab === "style" && <Placeholder title="Style" />}
       <TabBar tab={tab} onChange={setTab} />
     </div>
   );
