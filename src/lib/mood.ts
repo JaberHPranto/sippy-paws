@@ -1,4 +1,4 @@
-import { dk, fmtMl, pick } from "./dates";
+import { dk, fmtMl } from "./dates";
 import { type State, goalOf, mlOf, pctOf, hitOf, who, nameOf } from "./store";
 
 export type Mood = "normal" | "happy" | "ecstatic" | "sad" | "wink" | "sleepy";
@@ -50,4 +50,3 @@ export const POKES = {
   panda: ["Hehe, that tickles!", "Boop! Bamboo break?", "*rolls over* Again, again!", "I'm not chubby, I'm fluffy."],
   cat: ["Mrrrow? Pet me more.", "*purrrrr*", "Hey! I was napping.", "If I fits, I sits."],
 };
-export { pick };

@@ -5,7 +5,7 @@ import { addDays, dk, prevDay } from "./dates";
 import { sfx } from "./sound";
 
 export type Entry = { id: string; date: string; ts: number; mood: number | null; prompt?: string; text: string };
-export type Todo = { id: string; text: string; done: boolean; ts: number; doneAt?: number; doneDay?: string; paid?: boolean };
+type Todo = { id: string; text: string; done: boolean; ts: number; doneAt?: number; doneDay?: string; paid?: boolean };
 export type Ticket = { code: string; couponId: string; title: string; cost: number; ts: number };
 export type Settings = { name: string; partnerName: string; favDrinks: string[]; pandaName: string; catName: string; goalMl: number; waterMl: number; remind: boolean; interval: number; startHour: number; endHour: number; sound: boolean };
 
@@ -22,7 +22,7 @@ export type State = {
   cards: CardInst[]; packCards: Record<string, number>; claimed: Record<string, { t: number; def: SpecialDef }>;
 };
 export type Look = Record<string, string>;
-export type Preset = { id: string; name: string; panda: Look; cat: Look; scene: string };
+type Preset = { id: string; name: string; panda: Look; cat: Look; scene: string };
 export type Snap = { id: string; ts: number; pose: string; scene: string; panda: Look; cat: Look; caption: string; border: string };
 export type CardInst = { u: string; d: string; k: string; t: number; p: string; c: string; s: string; h: number; st: number[] };
 export type SpecialDef = { id: string; name: string; r: "special"; t: string; kind: string; mood: string; pm: string; cm: string; scene: string; p: string; c: string; hp: number; st: number[]; ts: number; moves: [string, string | number, string][]; fl: string };
@@ -96,7 +96,7 @@ export function levelInfo(xp: number) {
   while (xp >= acc + need) { acc += need; lvl++; need = 80 + (lvl - 1) * 20; }
   return { lvl, into: xp - acc, need };
 }
-export function streak(met: (k: string) => boolean) { let k = dk(), n = 0; if (!met(k)) k = prevDay(k); while (met(k)) { n++; k = prevDay(k); } return n; }
+function streak(met: (k: string) => boolean) { let k = dk(), n = 0; if (!met(k)) k = prevDay(k); while (met(k)) { n++; k = prevDay(k); } return n; }
 export const waterStreak = (s: State) => streak((k) => hitOf(s, k));
 export const journalStreak = (s: State) => streak((k) => !!s.jdays[k]);
 export function bestStreak(s: State) {

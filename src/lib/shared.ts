@@ -6,5 +6,4 @@ import { DEFAULT_COUPONS, type Coupon } from "./data";
 let coupons: Coupon[] = DEFAULT_COUPONS;
 const subs = new Set<() => void>();
 export const setCoupons = (c: Coupon[] | null) => { coupons = c && c.length ? c : DEFAULT_COUPONS; subs.forEach((f) => f()); };
-export const getCoupons = () => coupons;
 export const useCoupons = () => useSyncExternalStore((cb) => { subs.add(cb); return () => { subs.delete(cb); }; }, () => coupons, () => DEFAULT_COUPONS);

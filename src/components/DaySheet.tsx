@@ -3,7 +3,7 @@ import { BookOpen01Icon, CheckmarkSquare02Icon } from "@hugeicons/core-free-icon
 import { Icon } from "./Icon";
 import { Mascot } from "./Mascot";
 import { useModal } from "./Modal";
-import { DRINKS, MOODS, drinkById } from "@/lib/data";
+import { MOODS, drinkById } from "@/lib/data";
 import { dk, fmtMl, k2d } from "@/lib/dates";
 import { moodForDay } from "@/lib/mood";
 import { goalOf, hitOf, mlOf, useStore } from "@/lib/store";
@@ -37,4 +37,3 @@ export function DaySheet({ k }: { k: string }) {
     </>
   );
 }
-export { DRINKS };

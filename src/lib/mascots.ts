@@ -1,7 +1,5 @@
 // @ts-nocheck
 /* Ported verbatim from the v1 artifact (mascots + items + scenes). Returns SVG strings. */
-let activeLook: (kind: string) => Record<string, string> = () => ({});
-export function setLookProvider(fn) { activeLook = fn; }
 /* ================= mascots ================= */
 const HEART = "M0 3 C0 -1 6 -1 6 3 C6 -1 12 -1 12 3 C12 7 6 10 6 13 C6 10 0 7 0 3z";
 let svgUid = 0;
@@ -84,7 +82,6 @@ const ITEMS = [
 ];
 const ITEM = Object.fromEntries(ITEMS.map(i => [i.id, i]));
 const SLOTS = [["head","Head","🎀"],["face","Face","👓"],["neck","Neck","🧣"],["outfit","Outfit","👘"],["hand","Hand","🧋"],["aura","Aura","✨"]];
-const SLOT_NAME = Object.fromEntries(SLOTS.map(s => [s[0], s[1]])); SLOT_NAME.scene = "Scene";
 function clipBody(c, inner){ return `<clipPath id="cb${c.u}"><ellipse cx="60" cy="120" rx="32" ry="25"/></clipPath><g clip-path="url(#cb${c.u})">${inner}</g><ellipse cx="60" cy="120" rx="32" ry="25" fill="none" stroke="rgba(0,0,0,.12)" stroke-width="2"/>`; }
 
 /* ---------- character parts ---------- */
@@ -190,15 +187,6 @@ function mascot(kind, mood, look = {}){
     + L("face","front") + L("neck","front") + L("head","front") + L("outfit","front") + p.arms + L("hand","front") + p.extra + L("aura","front");
 }
 const charSVG = (kind, mood, look) => `<svg viewBox="-8 -14 136 166" aria-hidden="true">${mascot(kind, mood, look)}</svg>`;
-function pandaSVG(mood){ return charSVG("panda", mood, activeLook("panda")); }
-function catSVG(mood){ return charSVG("cat", mood, activeLook("cat")); }
-function setMascot(el, svgFn, mood){
-  const kind = svgFn === catSVG ? "cat" : "panda";
-  const key = mood + "|" + JSON.stringify(activeLook(kind));
-  if (el.dataset.key !== key){ el.innerHTML = svgFn(mood); el.dataset.key = key; }
-  el.classList.remove("normal","happy","ecstatic","sad","wink","sleepy"); el.classList.add(mood);
-}
-function poke(el){ el.classList.remove("poke"); void el.offsetWidth; el.classList.add("poke"); setTimeout(() => el.classList.remove("poke"), 650); }
 
 /* ---------- scenes (300×200) ---------- */
 function sceneSVG(id){
@@ -233,4 +221,4 @@ function duoStage(pose, scene, pl, cl){
     ${d.heart ? heartAt(141, 48, 1.5, "#ff6f8c", "heart") : ""}</svg>`;
 }
 
-export { charSVG, mascot, sceneSVG, soloStage, duoStage, DUO, ITEMS, ITEM, SLOTS, SLOT_NAME };
+export { charSVG, mascot, sceneSVG, soloStage, duoStage, DUO, ITEMS, ITEM, SLOTS };

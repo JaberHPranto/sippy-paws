@@ -2,12 +2,12 @@
 import { useEffect, useSyncExternalStore } from "react";
 import type { Session } from "@supabase/supabase-js";
 import { sb, authHeader } from "./supabase";
-import { getState, remote, replaceState, setOwner, subscribe, toast, type SpecialDef, type State } from "./store";
+import { getState, remote, replaceState, setOwner, subscribe, type SpecialDef, type State } from "./store";
 import { setSpecials } from "./cards";
 import { setCoupons } from "./shared";
 import type { Coupon } from "./data";
 
-export type Inbox = { id: number; kind: "wish" | "redeem"; payload: Record<string, string | number>; created_at: string };
+type Inbox = { id: number; kind: "wish" | "redeem"; payload: Record<string, string | number>; created_at: string };
 type Cloud = { session: Session | null; role: "her" | "owner" | null; status: "off" | "idle" | "syncing" | "synced" | "error"; inbox: Inbox[] };
 let cloud: Cloud = { session: null, role: null, status: sb ? "idle" : "off", inbox: [] };
 const subs = new Set<() => void>();
@@ -55,7 +55,7 @@ async function loadShared() {
     if (row.key === "specials") setSpecials(row.value as SpecialDef[]);
   }
 }
-export async function loadInbox() {
+async function loadInbox() {
   if (!sb) return;
   const { data } = await sb.from("inbox").select("id,kind,payload,created_at").order("created_at", { ascending: false }).limit(60);
   set({ inbox: (data ?? []) as Inbox[] });
@@ -98,4 +98,3 @@ export function useSyncEngine() {
     return () => { authSub.subscription.unsubscribe(); unsub(); document.removeEventListener("visibilitychange", onVis); };
   }, []);
 }
-export { toast };

@@ -14,7 +14,6 @@ export const DRINKS = [
   { id: "milk", name: "Milk", icon: MilkBottleIcon, ml: 200, f: 0.9, color: "#a8977f" },
   { id: "lassi", name: "Lassi", icon: BubbleTea01Icon, ml: 250, f: 0.85, color: "#ff8fa3" },
 ] as const;
-export type DrinkId = (typeof DRINKS)[number]["id"];
 export const drinkById = (id: string) => DRINKS.find((d) => d.id === id) ?? DRINKS[0];
 
 export const MOODS = [

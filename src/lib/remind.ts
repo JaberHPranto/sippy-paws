@@ -4,7 +4,7 @@ export type RemindState = {
   ml?: Record<string, number>; dayGoal?: Record<string, number>; lastDrink?: number;
 };
 
-export function localParts(now: Date, tz: string) {
+function localParts(now: Date, tz: string) {
   const f = new Intl.DateTimeFormat("en-CA", { timeZone: tz, year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hourCycle: "h23" });
   const p = Object.fromEntries(f.formatToParts(now).map((x) => [x.type, x.value]));
   return { day: `${p.year}-${p.month}-${p.day}`, hour: +p.hour + +p.minute / 60 };

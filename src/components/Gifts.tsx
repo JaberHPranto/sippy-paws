@@ -9,7 +9,7 @@ import { fmtDate } from "@/lib/dates";
 import { useCoupons } from "@/lib/shared";
 import { actions, partnerOf, useOwner, useStore, type Ticket } from "@/lib/store";
 
-export function BigTicket({ t, icon }: { t: Ticket; icon: Coupon["icon"] }) {
+function BigTicket({ t, icon }: { t: Ticket; icon: Coupon["icon"] }) {
   const { close } = useModal(), s = useStore();
   return (
     <>

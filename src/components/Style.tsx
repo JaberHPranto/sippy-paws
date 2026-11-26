@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { motion } from "motion/react";
-import { DressIcon, ShoppingBag02Icon, WardrobeIcon, CameraIcon, Cards02Icon, DiceFaces03Icon, FloppyDiskIcon, PawPrintIcon, Clock01Icon, StarIcon, ScissorIcon, Mail01Icon, LockIcon, Tick02Icon, FavouriteIcon, Search01Icon, Cancel01Icon, Delete02Icon, SparklesIcon } from "@hugeicons/core-free-icons";
+import { DressIcon, ShoppingBag02Icon, WardrobeIcon, CameraIcon, Cards02Icon, DiceFaces03Icon, FloppyDiskIcon, PawPrintIcon, Clock01Icon, StarIcon, ScissorIcon, Mail01Icon, LockIcon, Tick02Icon, FavouriteIcon, Search01Icon, Cancel01Icon, Delete02Icon, } from "@hugeicons/core-free-icons";
 import type { IconSvgElement } from "@hugeicons/react";
 import { Icon } from "./Icon";
 import { useModal } from "./Modal";
@@ -312,4 +312,3 @@ function Look({ goShop }: { goShop: (f: string) => void }) {
     </>
   );
 }
-export { SparklesIcon };

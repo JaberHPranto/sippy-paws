@@ -1,13 +1,13 @@
 "use client";
 import { useMemo, useState } from "react";
-import { Delete02Icon, DropletIcon, Calendar03Icon, Sun03Icon, CloudRainIcon, QuillWrite01Icon, Note01Icon, BubbleChatFavouriteIcon, FireIcon, PencilEdit02Icon, CheckmarkSquare02Icon } from "@hugeicons/core-free-icons";
+import { DropletIcon, Calendar03Icon, Sun03Icon, CloudRainIcon, QuillWrite01Icon, Note01Icon, BubbleChatFavouriteIcon, PencilEdit02Icon, CheckmarkSquare02Icon } from "@hugeicons/core-free-icons";
 import { AnimatePresence } from "motion/react";
 import { Icon } from "./Icon";
 import { EntryCard } from "./EntryCard";
 import { Mascot } from "./Mascot";
 import { useModal } from "./Modal";
 import { DAYS, MOODS, MOOD_FILL, PROMPTS } from "@/lib/data";
-import { addDays, dk, fmtDate, fmtMl, fmtTime, k2d, pick } from "@/lib/dates";
+import { addDays, dk, fmtDate, fmtMl, k2d, pick } from "@/lib/dates";
 import { actions, hitOf, journalStreak, mlOf, nameOf, useStore, who, type Entry, type State } from "@/lib/store";
 import type { Mood } from "@/lib/mood";
 
@@ -31,7 +31,6 @@ export function Journal() {
   const [q, setQ] = useState(""), [mf, setMf] = useState<string>("all");
   const [cal, setCal] = useState(() => { const d = new Date(); return new Date(d.getFullYear(), d.getMonth(), 1); });
   const [memSeed, setMemSeed] = useState(0);
-  const [openIds, setOpenIds] = useState<Set<string>>(new Set());
   const today = dk(), dm = useMemo(() => dayMoods(J), [J]);
   const miniMood: Mood = mood === null ? "normal" : mood <= 1 ? "sad" : mood >= 4 ? "ecstatic" : "happy";
 
@@ -232,4 +231,3 @@ function JournalDay({ k }: { k: string }) {
     </>
   );
 }
-export { FireIcon };

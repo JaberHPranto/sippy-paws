@@ -4,7 +4,7 @@ import { DropletIcon, ChartLineData01Icon, DressIcon, BookOpen01Icon, CheckmarkS
 import { Icon } from "./Icon";
 import { useOwner } from "@/lib/store";
 
-export const TABS = [
+const TABS = [
   { id: "home", label: "Today", icon: DropletIcon },
   { id: "overview", label: "Stats", icon: ChartLineData01Icon },
   { id: "style", label: "Style", icon: DressIcon },

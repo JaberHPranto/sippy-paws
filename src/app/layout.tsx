@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   icons: { apple: "/icons/icon-192.png" },
 };
 export const viewport: Viewport = {
-  themeColor: "#3fae78",
+  themeColor: "#ff8fa3",
   viewportFit: "cover",
   width: "device-width",
   initialScale: 1,

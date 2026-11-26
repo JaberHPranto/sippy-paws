@@ -4,15 +4,15 @@ import { useSyncExternalStore } from "react";
 import { DropletIcon, Sofa01Icon, SparklesIcon, FavouriteIcon, PawPrintIcon } from "@hugeicons/core-free-icons";
 import { mascot, sceneSVG, soloStage, ITEM } from "./mascots";
 import { iconSVG, esc } from "./iconstr";
-import { addDays, dk, fmtDate, pick, prevDay } from "./dates";
-import { commit, confetti, getState, goalOf, hitOf, isOwner, mlOf, onAction, partnerOf, toast, waterStreak, type CardInst, type SpecialDef, type State } from "./store";
+import { dk, fmtDate, pick, prevDay } from "./dates";
+import { commit, getState, goalOf, hitOf, isOwner, mlOf, onAction, partnerOf, toast, waterStreak, type CardInst, type SpecialDef, type State } from "./store";
 import { activeLook, realLevel, sceneNow } from "./style";
 import { sfx } from "./sound";
 
 export const RARITY = {
   common: { label: "Common", sym: "●", w: 70 }, rare: { label: "Rare", sym: "◆", w: 23 }, holo: { label: "Holo", sym: "★", w: 6 }, secret: { label: "Secret Rare", sym: "✦", w: 1 }, special: { label: "Special", sym: "♥", w: 0 },
 };
-export const TYPES = { hydro: { icon: DropletIcon, label: "Hydro" }, cozy: { icon: Sofa01Icon, label: "Cozy" }, charm: { icon: SparklesIcon, label: "Charm" }, love: { icon: FavouriteIcon, label: "Love" } };
+const TYPES = { hydro: { icon: DropletIcon, label: "Hydro" }, cozy: { icon: Sofa01Icon, label: "Cozy" }, charm: { icon: SparklesIcon, label: "Charm" }, love: { icon: FavouriteIcon, label: "Love" } };
 export const MOMENTS = [
   {id:"goal", name:"Full Tank", r:"common", t:"hydro", kind:"duo", pm:"ecstatic", cm:"ecstatic", hint:"Hit your daily water goal", moves:[["Sip Splash",20,"A refreshing little splash."],["Bottoms Up","hydro","Hits harder the more you drank today."]], fl:"Every last drop counted today."},
   {id:"early", name:"Early Sipper", r:"common", t:"hydro", kind:"panda", mood:"happy", scene:"sky", hint:"Log a drink before 9 am", moves:[["Morning Gulp",15,"Water before cha!"],["Sunrise Glow",30,""]], fl:"Water first, then the world."},
@@ -90,7 +90,7 @@ function mint(s: State, id: string): CardInst | null {
   return { u: "m" + Date.now().toString(36) + Math.random().toString(36).slice(2, 5), d: id, k, t: Date.now(), p: lookStr(activeLook(s, "panda")), c: lookStr(activeLook(s, "cat")), s: sceneNow(s), h: st.hp, st: st.st };
 }
 /** Mint Daily Moment cards from what actually happened today. */
-export function checkMoments(ctx: any = {}) {
+function checkMoments(ctx: any = {}) {
   const s = getState(), k = dk(), ml = mlOf(s, k), g = goalOf(s, k), hit = ml >= g, h = new Date().getHours(), dr = s.drinks[k] || {};
   const st = hit ? waterStreak(s) : 0;
   const items = Object.keys(activeLook(s, "panda")).length + Object.keys(activeLook(s, "cat")).length;
@@ -200,4 +200,3 @@ export function buildSpecial(s: State, f: { name: string; kind: string; mood: st
   return { id: "sp" + Date.now().toString(36), name: f.name || "Special Moment", r: "special", t: "love", kind: f.kind, mood: f.mood, pm: f.mood, cm: f.mood === "happy" ? "wink" : f.mood, scene: f.scene,
     p: lookStr(activeLook(s, "panda")), c: lookStr(activeLook(s, "cat")), hp: 999, st: [99, 99, 99], ts: Date.now(), moves: [[f.move || "Endless Love", "∞", ""]], fl: f.fl || "Made just for you." };
 }
-export { isOwner, addDays };

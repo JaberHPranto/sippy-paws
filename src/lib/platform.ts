@@ -1,11 +1,11 @@
 "use client";
 import { useEffect, useState } from "react";
 
-export type OS = "ios" | "android" | "desktop";
-export type Browser = "safari" | "chrome" | "firefox" | "edge" | "samsung" | "other";
+type OS = "ios" | "android" | "desktop";
+type Browser = "safari" | "chrome" | "firefox" | "edge" | "samsung" | "other";
 export type Env = { os: OS; browser: Browser; standalone: boolean };
 
-export function detect(): Env {
+function detect(): Env {
   if (typeof navigator === "undefined") return { os: "desktop", browser: "other", standalone: false };
   const ua = navigator.userAgent;
   const ios = /iPhone|iPad|iPod/i.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
