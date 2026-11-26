@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { Tick02Icon, Cancel01Icon } from "@hugeicons/core-free-icons";
+import { AnimatePresence, motion } from "motion/react";
 import { Icon } from "./Icon";
 import { Mascot } from "./Mascot";
 import { actions, useStore, who } from "@/lib/store";
@@ -17,19 +18,25 @@ export function Todo() {
   return (
     <section className="view">
       <div className="card">
-        <div className="prompt-row"><Mascot kind="panda" mood={mood} className="mini" /><div className="bubble" dangerouslySetInnerHTML={{ __html: `${who(s, "P")} ${line}` }} /></div>
+        <div className="prompt-row"><Mascot kind="panda" mood={mood} className="mini" /><motion.div key={line} initial={{ scale: 0.94, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ type: "spring", stiffness: 500, damping: 26 }} className="bubble" dangerouslySetInnerHTML={{ __html: `${who(s, "P")} ${line}` }} /></div>
         <form className="tform" style={{ marginTop: 10 }} onSubmit={(e) => { e.preventDefault(); if (text.trim()) { actions.addTodo(text.trim().slice(0, 140)); setText(""); } }}>
           <input type="text" value={text} onChange={(e) => setText(e.target.value)} placeholder="Add a little task…" maxLength={140} autoComplete="off" />
           <button className="btn primary" type="submit">Add</button>
         </form>
         <ul className="tlist">
-          {sorted.length ? sorted.map((t) => (
-            <li key={t.id} className={t.done ? "done" : ""}>
-              <button className="check" aria-label="toggle" onClick={() => actions.toggleTodo(t.id)}>{t.done && <Icon icon={Tick02Icon} size={16} stroke={3} />}</button>
+          <AnimatePresence initial={false}>
+          {sorted.map((t) => (
+            <motion.li key={t.id} className={t.done ? "done" : ""} layout initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, x: 40, transition: { duration: 0.18 } }}
+              transition={{ type: "spring", stiffness: 420, damping: 32 }}>
+              <button className="check" aria-label="toggle" onClick={() => actions.toggleTodo(t.id)}>
+                <AnimatePresence>{t.done && <motion.span initial={{ scale: 0, rotate: -30 }} animate={{ scale: 1, rotate: 0 }} exit={{ scale: 0 }} transition={{ type: "spring", stiffness: 600, damping: 18 }} style={{ display: "grid" }}><Icon icon={Tick02Icon} size={16} stroke={3} /></motion.span>}</AnimatePresence>
+              </button>
               <span className="txt">{t.text}</span>
               <button className="x" aria-label="Delete" onClick={() => actions.deleteTodo(t.id)}><Icon icon={Cancel01Icon} size={18} /></button>
-            </li>
-          )) : <li className="empty" style={{ justifyContent: "center", border: 0 }}>Nothing here yet</li>}
+            </motion.li>
+          ))}
+          </AnimatePresence>
+          {!sorted.length && <li className="empty" style={{ justifyContent: "center", border: 0 }}>Nothing here yet</li>}
         </ul>
         {s.todos.some((t) => t.done) && <button className="link" onClick={actions.clearDone}>Clear finished</button>}
       </div>

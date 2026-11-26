@@ -1,4 +1,5 @@
 "use client";
+import { motion } from "motion/react";
 import { DropletIcon, ChartLineData01Icon, DressIcon, BookOpen01Icon, CheckmarkSquare02Icon, GiftIcon } from "@hugeicons/core-free-icons";
 import { Icon } from "./Icon";
 
@@ -15,11 +16,17 @@ export type TabId = (typeof TABS)[number]["id"];
 export function TabBar({ tab, onChange }: { tab: TabId; onChange: (t: TabId) => void }) {
   return (
     <nav className="tabs"><div className="tabs-in">
-      {TABS.map((t) => (
-        <button key={t.id} className={tab === t.id ? "on" : ""} onClick={() => onChange(t.id)}>
-          <span><Icon icon={t.icon} size={22} stroke={tab === t.id ? 2.1 : 1.8} /></span>{t.label}
-        </button>
-      ))}
+      {TABS.map((t) => {
+        const on = tab === t.id;
+        return (
+          <button key={t.id} className={on ? "on" : ""} onClick={() => onChange(t.id)}>
+            {on && <motion.i layoutId="tab-pill" className="tab-pill" transition={{ type: "spring", stiffness: 500, damping: 36 }} />}
+            <motion.span animate={on ? { y: [0, -4, 0], scale: [1, 1.15, 1] } : { y: 0, scale: 1 }} transition={{ duration: 0.35 }}>
+              <Icon icon={t.icon} size={22} stroke={on ? 2.1 : 1.8} />
+            </motion.span>{t.label}
+          </button>
+        );
+      })}
     </div></nav>
   );
 }

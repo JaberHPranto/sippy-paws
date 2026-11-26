@@ -1,7 +1,9 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { FireIcon, Leaf01Icon, GlassWaterIcon, DropletIcon } from "@hugeicons/core-free-icons";
+import { AnimatePresence, motion } from "motion/react";
 import { Icon } from "./Icon";
+import { CountUp } from "./CountUp";
 import { Mascot } from "./Mascot";
 import { Ring } from "./Ring";
 import { DaySheet } from "./DaySheet";
@@ -36,8 +38,11 @@ export function Today({ go }: { go: (t: "overview") => void }) {
           <Mascot kind="panda" mood={md} id="mPanda" onPoke={() => pokeLine("panda")} />
           <Mascot kind="cat" mood={md} id="mCat" onPoke={() => pokeLine("cat")} />
         </div>
-        <div className="bubble" dangerouslySetInnerHTML={{ __html: fx.say ?? defaultLine(s, seed) }} />
-        <div className="lvl"><span>Lv {L.lvl}</span><div className="bar"><i style={{ width: `${Math.round((L.into / L.need) * 100)}%` }} /></div><span className="muted">{L.need - L.into} to go</span></div>
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.div key={fx.say ?? "default"} className="bubble" initial={{ opacity: 0, scale: 0.92, y: 4 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.96 }}
+            transition={{ type: "spring", stiffness: 520, damping: 28 }} dangerouslySetInnerHTML={{ __html: fx.say ?? defaultLine(s, seed) }} />
+        </AnimatePresence>
+        <div className="lvl"><span>Lv {L.lvl}</span><div className="bar"><i style={{ transition: "width .7s cubic-bezier(.3,1.4,.5,1)", width: `${Math.round((L.into / L.need) * 100)}%` }} /></div><span className="muted">{L.need - L.into} to go</span></div>
       </div>
 
       <div className="card">
@@ -55,17 +60,17 @@ export function Today({ go }: { go: (t: "overview") => void }) {
         <div className="target">
           <div className={`orb ${ml >= goal ? "done" : ""}`}>
             <div className="fill" style={{ height: `${Math.min(100, pct)}%` }} />
-            <div className="orb-txt"><b>{Math.round(ml).toLocaleString()}</b><span>of {goal.toLocaleString()} ml</span></div>
+            <div className="orb-txt"><b><CountUp value={ml} /></b><span>of {goal.toLocaleString()} ml</span></div>
           </div>
           <div className="t-info">
             <div className="muted small" style={{ fontWeight: 800 }}>Daily target</div>
-            <div className="big">{pct}%</div>
+            <div className="big"><CountUp value={pct} suffix="%" /></div>
             <div className="muted small">{ml >= goal ? "Goal complete!" : `${fmtMl(goal - ml)} left today`}</div>
             <div className="streak"><Icon icon={FireIcon} size={16} stroke={2} />{ws ? `${ws}-day streak` : "Hit your goal to start a streak"}</div>
           </div>
         </div>
         <div className="btns">
-          <button className="btn primary" onClick={() => drink("water", s.settings.waterMl)}><Icon icon={DropletIcon} size={18} stroke={2} />Drink {s.settings.waterMl} ml water</button>
+          <motion.button whileTap={{ scale: 0.96 }} className="btn primary" onClick={() => drink("water", s.settings.waterMl)}><Icon icon={DropletIcon} size={18} stroke={2} />Drink {s.settings.waterMl} ml water</motion.button>
           <button className="btn ghost" disabled={!canUndo} onClick={actions.undo}>Undo</button>
         </div>
       </div>
@@ -74,9 +79,9 @@ export function Today({ go }: { go: (t: "overview") => void }) {
         <h3>What are you sipping?</h3>
         <div className="drinks">
           {DRINKS.map((d) => (
-            <button key={d.id} className={`drink ${pop === d.id ? "pop" : ""}`} style={{ ["--c" as string]: d.color }} onClick={() => drink(d.id, d.ml)}>
+            <motion.button whileTap={{ scale: 0.9 }} key={d.id} className={`drink ${pop === d.id ? "pop" : ""}`} style={{ ["--c" as string]: d.color }} onClick={() => drink(d.id, d.ml)}>
               <span className="ic"><Icon icon={d.icon} size={28} stroke={1.8} /></span><span className="nm">{d.name}</span><span className="ml">{d.ml} ml</span>
-            </button>
+            </motion.button>
           ))}
           <button className="drink custom" style={{ ["--c" as string]: "#8c7f89" }} onClick={() => open(<CustomDrink onDone={close} />)}>
             <span className="ic"><Icon icon={GlassWaterIcon} size={28} /></span><span className="nm">Custom</span><span className="ml">any amount</span>

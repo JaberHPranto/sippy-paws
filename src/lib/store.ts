@@ -2,6 +2,7 @@
 import { useSyncExternalStore } from "react";
 import { drinkById, COUPONS } from "./data";
 import { addDays, dk, prevDay } from "./dates";
+import { sfx } from "./sound";
 
 export type Entry = { id: string; date: string; ts: number; mood: number | null; prompt?: string; text: string };
 export type Todo = { id: string; text: string; done: boolean; ts: number; doneAt?: number; doneDay?: string; paid?: boolean };
@@ -79,7 +80,7 @@ const code = () => Math.random().toString(36).slice(2, 8).toUpperCase();
 function earn(s: State, n: number, why: string): State {
   const before = levelInfo(s.xp).lvl, next = { ...s, points: s.points + n, xp: s.xp + n };
   toast(`+${n} paw points · ${why}`);
-  if (levelInfo(next.xp).lvl > before) setTimeout(() => { confetti(); toast(`Bond level ${levelInfo(next.xp).lvl}!`); }, 400);
+  if (levelInfo(next.xp).lvl > before) setTimeout(() => { confetti(); sfx("success"); toast(`Bond level ${levelInfo(next.xp).lvl}!`); }, 400);
   return next;
 }
 const DRINK_LINES: Record<string, string[]> = {
@@ -114,9 +115,10 @@ export const actions = {
     if (s.ml[k] >= goal && !aw.goal) {
       s = { ...s, awards: { ...s.awards, [k]: { ...aw, goal: true } }, packs: s.packs + 1 };
       s = earn(s, 15, "daily goal!");
-      confetti();
+      confetti(); sfx("success");
       say(`<span class="who">${s.settings.pandaName} &amp; ${s.settings.catName}:</span> YOU DID IT!! Goal complete today *victory dance*`, 9000);
     } else {
+      sfx("drink");
       const [w, line] = (DRINK_LINES[id] ?? DRINK_LINES.water)[Math.floor(Math.random() * 2)].split("|");
       say(`${who(s, w as "P" | "C")} ${line}`);
     }
@@ -130,25 +132,27 @@ export const actions = {
       ...S, undo: S.undo.filter((_, j) => j !== i), ml: { ...S.ml, [k]: Math.max(0, mlOf(S, k) - u.eff) }, drinks: { ...S.drinks, [k]: dr },
       points: u.paid ? Math.max(0, S.points - 2) : S.points, xp: u.paid ? Math.max(0, S.xp - 2) : S.xp,
     });
-    toast("Undone");
+    toast("Undone"); sfx("untick");
   },
   saveEntry(mood: number | null, text: string, prompt: string) {
     const k = dk();
     let s: State = { ...S, journal: [{ id: uid(), date: k, ts: Date.now(), mood, prompt, text }, ...S.journal] };
+    sfx("chime");
     if (!S.jdays[k]) { s = { ...s, jdays: { ...s.jdays, [k]: 1 } }; s = earn(s, 10, "journal"); } else toast("Saved");
     commit(s);
   },
-  deleteEntry: (id: string) => commit({ ...S, journal: S.journal.filter((e) => e.id !== id) }),
-  addTodo: (text: string) => commit({ ...S, todos: [...S.todos, { id: uid(), text, done: false, ts: Date.now() }] }),
+  deleteEntry: (id: string) => { sfx("del"); commit({ ...S, journal: S.journal.filter((e) => e.id !== id) }); },
+  addTodo: (text: string) => sfx("pop") ?? commit({ ...S, todos: [...S.todos, { id: uid(), text, done: false, ts: Date.now() }] }),
   toggleTodo(id: string) {
     const t = S.todos.find((x) => x.id === id); if (!t) return;
     const k = dk(), aw = S.awards[k] ?? {};
     let s: State;
+    sfx(t.done ? "untick" : "tick");
     if (!t.done) {
       const pay = (aw.todo ?? 0) < 30;
       s = { ...S, todos: S.todos.map((x) => (x.id === id ? { ...x, done: true, doneAt: Date.now(), doneDay: k, paid: pay } : x)), tdone: { ...S.tdone, [k]: (S.tdone[k] ?? 0) + 1 } };
       if (pay) { s = { ...s, awards: { ...s.awards, [k]: { ...aw, todo: (aw.todo ?? 0) + 3 } } }; s = earn(s, 3, "task done"); } else toast("Done!");
-      if (s.todos.every((x) => x.done)) confetti();
+      if (s.todos.every((x) => x.done)) { confetti(); setTimeout(() => sfx("success"), 150); }
     } else {
       const day = t.doneDay ?? k;
       s = { ...S, todos: S.todos.map((x) => (x.id === id ? { ...x, done: false, doneAt: undefined, paid: false } : x)), tdone: { ...S.tdone, [day]: Math.max(0, (S.tdone[day] ?? 1) - 1) } };
@@ -156,13 +160,13 @@ export const actions = {
     }
     commit(s);
   },
-  deleteTodo: (id: string) => commit({ ...S, todos: S.todos.filter((x) => x.id !== id) }),
-  clearDone: () => commit({ ...S, todos: S.todos.filter((x) => !x.done) }),
+  deleteTodo: (id: string) => sfx("del") ?? commit({ ...S, todos: S.todos.filter((x) => x.id !== id) }),
+  clearDone: () => sfx("swoosh") ?? commit({ ...S, todos: S.todos.filter((x) => !x.done) }),
   redeem(id: string): Ticket | null {
     const c = COUPONS.find((x) => x.id === id); if (!c || S.points < c.cost) return null;
     const t: Ticket = { code: code(), couponId: c.id, title: c.title, cost: c.cost, ts: Date.now() };
     commit({ ...S, points: S.points - c.cost, redeemed: [...S.redeemed, t].slice(-100) });
-    confetti();
+    confetti(); sfx("success");
     return t;
   },
 };

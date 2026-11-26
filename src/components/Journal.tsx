@@ -1,7 +1,9 @@
 "use client";
 import { useMemo, useState } from "react";
 import { Delete02Icon, DropletIcon, Calendar03Icon, Sun03Icon, CloudRainIcon, QuillWrite01Icon, Note01Icon, BubbleChatFavouriteIcon, FireIcon, PencilEdit02Icon, CheckmarkSquare02Icon } from "@hugeicons/core-free-icons";
+import { AnimatePresence } from "motion/react";
 import { Icon } from "./Icon";
+import { EntryCard } from "./EntryCard";
 import { Mascot } from "./Mascot";
 import { useModal } from "./Modal";
 import { DAYS, MOODS, MOOD_FILL, PROMPTS } from "@/lib/data";
@@ -21,7 +23,7 @@ function dayMoods(J: Entry[]) {
 }
 
 export function Journal() {
-  const s = useStore(), J = s.journal, { open } = useModal();
+  const s = useStore(), J = s.journal, { open, close } = useModal();
   const [mood, setMood] = useState<number | null>(null);
   const [text, setText] = useState("");
   const [prompt, setPrompt] = useState(() => pick(PROMPTS));
@@ -43,6 +45,11 @@ export function Journal() {
 
   const save = () => { if (!text.trim() && mood === null) return; actions.saveEntry(mood, text.trim(), prompt); setText(""); setMood(null); setPrompt(pick(PROMPTS)); };
   const openDay = (k: string) => open(<JournalDay k={k} />);
+  const askDelete = (e: Entry) => open(<>
+    <h2>Delete this entry?</h2>
+    <p className="muted">It&apos;s gone for good once you delete it.</p>
+    <div className="btns"><button className="btn ghost" onClick={close}>Keep it</button><button className="btn pink" style={{ flex: 1 }} onClick={() => { actions.deleteEntry(e.id); close(); }}>Delete</button></div>
+  </>);
 
   // memory
   const mem = useMemo(() => {
@@ -76,7 +83,7 @@ export function Journal() {
         <button className="link" onClick={() => setPrompt(pick(PROMPTS.filter((p) => p !== prompt)))}>Ask me something else ↻</button>
         <div className="moods">
           {MOODS.map((m, i) => (
-            <button key={m.label} type="button" className={mood === i ? "sel" : ""} style={{ ["--c" as string]: m.color }} aria-label={m.label} onClick={() => setMood(mood === i ? null : i)}>
+            <button key={m.label} type="button" className={mood === i ? "sel" : ""} style={{ ["--c" as string]: m.color }} aria-label={m.label} data-sfx="tick" onClick={() => setMood(mood === i ? null : i)}>
               <Icon icon={m.icon} size={30} stroke={1.8} />
             </button>
           ))}
@@ -153,31 +160,15 @@ export function Journal() {
               <div className="mgroup" key={g.m}>
                 <div className="mg-h"><b>{k2d(g.m + "-01").toLocaleDateString(undefined, { month: "long", year: "numeric" })}</b><span className="muted small">{g.items.length} entr{g.items.length === 1 ? "y" : "ies"}</span>
                   <div className="mix-bar thin">{c.map((n, i) => n ? <i key={i} style={{ flex: n, background: MOOD_FILL[i] }} /> : null)}</div></div>
-                {g.items.map((e) => {
-                  const long = e.text.length > 260, op = openIds.has(e.id);
-                  return (
-                    <div key={e.id} className={`entry jentry ${long && !op ? "clamp" : ""}`} style={{ borderLeftColor: e.mood != null ? MOOD_FILL[e.mood] : "var(--line)" }}>
-                      <div className="h"><span className="mood" style={{ ["--c" as string]: e.mood != null ? MOODS[e.mood].color : "var(--muted)" }}><Icon icon={e.mood != null ? MOODS[e.mood].icon : Note01Icon} size={22} /></span>
-                        <span>{e.mood != null && <><b style={{ color: "var(--ink)" }}>{MOODS[e.mood].label}</b> · </>}{fmtDate(e.ts)} · {fmtTime(e.ts)}</span>
-                        <button className="x" aria-label="Delete" onClick={() => { if (confirm("Delete this entry?")) actions.deleteEntry(e.id); }}><Icon icon={Delete02Icon} size={18} /></button></div>
-                      {e.prompt && <div className="q"><Hl s={e.prompt} q={q.trim()} /></div>}
-                      {e.text && <p><Hl s={e.text} q={q.trim()} /></p>}
-                      {long && <button className="link" onClick={() => setOpenIds((o) => { const n = new Set(o); if (n.has(e.id)) n.delete(e.id); else n.add(e.id); return n; })}>{op ? "Show less" : "Read more"}</button>}
-                    </div>
-                  );
-                })}
+                <AnimatePresence initial={false} mode="popLayout">
+                  {g.items.map((e) => <EntryCard key={e.id} e={e} q={q.trim()} onDelete={() => askDelete(e)} />)}
+                </AnimatePresence>
               </div>
             );
           })}
       </div>
     </section>
   );
-}
-
-function Hl({ s, q }: { s: string; q: string }) {
-  if (!q) return <>{s}</>;
-  const i = s.toLowerCase().indexOf(q.toLowerCase());
-  return i < 0 ? <>{s}</> : <>{s.slice(0, i)}<mark>{s.slice(i, i + q.length)}</mark>{s.slice(i + q.length)}</>;
 }
 
 function MoodChart({ dm, start, range, onDay }: { dm: Record<string, number>; start: string; range: Range; onDay: (k: string) => void }) {
@@ -236,13 +227,7 @@ function JournalDay({ k }: { k: string }) {
       <div className="muted small" style={{ fontWeight: 800, marginBottom: 8, display: "flex", gap: 6, alignItems: "center", flexWrap: "wrap" }}>
         <Icon icon={DropletIcon} size={14} /> {fmtMl(mlOf(s, k))}{hitOf(s, k) ? " · goal hit" : ""} · <Icon icon={CheckmarkSquare02Icon} size={14} /> {td} to-do{td === 1 ? "" : "s"} done
       </div>
-      {es.length ? es.map((e) => (
-        <div key={e.id} className="entry jentry" style={{ borderLeftColor: e.mood != null ? MOOD_FILL[e.mood] : "var(--line)", boxShadow: "none", border: "2px solid var(--line)", borderLeftWidth: 6 }}>
-          <div className="h"><span className="mood" style={{ ["--c" as string]: e.mood != null ? MOODS[e.mood].color : "var(--muted)" }}><Icon icon={e.mood != null ? MOODS[e.mood].icon : Note01Icon} size={22} /></span>
-            <span>{e.mood != null && <><b style={{ color: "var(--ink)" }}>{MOODS[e.mood].label}</b> · </>}{fmtTime(e.ts)}</span></div>
-          {e.prompt && <div className="q">{e.prompt}</div>}{e.text && <p>{e.text}</p>}
-        </div>
-      )) : <div className="empty">No journal entry this day.</div>}
+      {es.length ? es.map((e) => <EntryCard key={e.id} e={e} showDate={false} />) : <div className="empty">No journal entry this day.</div>}
       <button className="btn primary" style={{ width: "100%", marginTop: 10 }} onClick={close}>Close</button>
     </>
   );

@@ -1,34 +1,34 @@
 "use client";
-import { useEffect, useState } from "react";
-import { Notification03Icon, Share01Icon, AddSquareIcon, CheckmarkCircle02Icon } from "@hugeicons/core-free-icons";
+import { useState } from "react";
+import { motion } from "motion/react";
+import { Notification03Icon } from "@hugeicons/core-free-icons";
 import { Icon } from "./Icon";
 import { Mascot } from "./Mascot";
-import { enableReminders, isIOS, isStandalone, pushSupported } from "@/lib/push";
+import { InstallGuide } from "./InstallGuide";
+import { enableReminders, pushSupported } from "@/lib/push";
+import { useEnv } from "@/lib/platform";
+
+const rise = (i: number) => ({ initial: { opacity: 0, y: 18 }, animate: { opacity: 1, y: 0 }, transition: { delay: 0.1 + i * 0.1, type: "spring" as const, stiffness: 300, damping: 26 } });
 
 export function Welcome({ name, onDone }: { name: string; onDone: () => void }) {
-  const [standalone, setStandalone] = useState(false), [ios, setIos] = useState(false), [res, setRes] = useState("");
-  useEffect(() => { setStandalone(isStandalone()); setIos(isIOS()); }, []);
-  const needInstall = ios && !standalone;
+  const env = useEnv(), [res, setRes] = useState("");
+  const needInstall = env?.os === "ios" && !env.standalone;
   return (
     <main className="welcome">
-      <div className="card stage happy" style={{ width: "100%" }}>
+      <motion.div className="card stage happy" style={{ width: "100%" }} {...rise(0)}>
         <div className="mascots"><Mascot kind="panda" mood="happy" /><Mascot kind="cat" mood="wink" /></div>
         <div className="bubble"><span className="who">Bao &amp; Miso:</span> Hi {name}! We&apos;ll nudge you to sip, journal and tick things off.</div>
-      </div>
-      <div className="card" style={{ width: "100%", textAlign: "left" }}>
-        <h3>Add us to your Home Screen</h3>
-        <ol className="steps">
-          <li><span className="si" style={{ background: "var(--blue2)", color: "#3a9ad6" }}><Icon icon={Share01Icon} /></span><span>Tap <b>Share</b> in Safari.</span></li>
-          <li><span className="si" style={{ background: "var(--mint2)", color: "#2f8a5f" }}><Icon icon={AddSquareIcon} /></span><span>Choose <b>Add to Home Screen</b>, then open Sippy Paws from the new icon.</span></li>
-        </ol>
-        {standalone && <p className="small" style={{ color: "#2f8a5f", fontWeight: 800, display: "flex", gap: 6, alignItems: "center" }}><Icon icon={CheckmarkCircle02Icon} size={18} /> Installed. You&apos;re all set!</p>}
+      </motion.div>
+      <motion.div className="card" style={{ width: "100%", textAlign: "left" }} {...rise(1)}>
+        <h3>{env?.os === "desktop" ? "Install the app" : "Add us to your Home Screen"}</h3>
+        {env && <InstallGuide env={env} />}
         <div className="btns">
-          <button className="btn primary" disabled={needInstall || !pushSupported()} onClick={async () => setRes(await enableReminders())}><Icon icon={Notification03Icon} size={18} stroke={2} />Turn on reminders</button>
+          <button className="btn primary" disabled={!env || needInstall || !pushSupported()} onClick={async () => setRes(await enableReminders())}><Icon icon={Notification03Icon} size={18} stroke={2} />Turn on reminders</button>
         </div>
-        {needInstall && <p className="muted small" style={{ fontWeight: 700 }}>Reminders unlock after you open the app from the Home Screen icon.</p>}
-        {res === "denied" && <p className="muted small" style={{ fontWeight: 700 }}>Notifications are off. Turn them on in Settings → Notifications.</p>}
-      </div>
-      <button className="link" onClick={onDone}>{res === "granted" ? "Let's go ›" : "Maybe later"}</button>
+        {needInstall && <p className="muted small" style={{ fontWeight: 700 }}>On iPhone, reminders unlock after you open the app from the Home Screen icon.</p>}
+        {res === "denied" && <p className="muted small" style={{ fontWeight: 700 }}>Notifications are off. You can turn them on in your phone&apos;s settings.</p>}
+      </motion.div>
+      <motion.button className="link" onClick={onDone} {...rise(2)}>{res === "granted" ? "Let's go ›" : "Maybe later"}</motion.button>
     </main>
   );
 }

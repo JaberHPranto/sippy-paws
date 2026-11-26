@@ -17,7 +17,10 @@ npm run build && npm start   # service worker is disabled in `next dev`
 - [x] Welcome / install flow (iOS Home Screen + reminder permission)
 - [x] Today screen (drinks, ml goal) with Hugeicons tab bar
 - [x] Today, Stats, Journal, To-do, Gifts ported 1:1 from the v1 artifact (same CSS, same Bao & Miso SVGs, same point rules); emoji replaced with Hugeicons
-- [x] Settings sheet (names, goal, glass size, reminder hours)
+- [x] Settings sheet (names, goal, glass size, reminder hours, sound effects on/off)
+- [x] Browser-aware install guide (iOS Safari/Chrome/Firefox/Edge, Android Chrome/Samsung/Firefox, desktop) + native install prompt on Chromium
+- [x] Motion (`motion/react`): tab transitions, tab pill, spring bottom sheet (swipe to close), list enter/exit, count-up, toasts
+- [x] Sound effects: synthesized with Web Audio in `src/lib/sound.ts` (no audio files)
 - [ ] Port Style (dress-up, boutique, closet, lookbook) and Paw Cards, with Miso
 - [ ] Supabase auth + RLS, `push_subscriptions`, pg_cron sender, VAPID keys
 

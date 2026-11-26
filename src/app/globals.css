@@ -457,3 +457,39 @@ h3 .hi{margin-left:6px;color:var(--pink)}
 .steps{list-style:none;padding:0;margin:0;text-align:left;display:flex;flex-direction:column;gap:12px}
 .steps li{display:flex;gap:12px;align-items:center;font-weight:700}
 .steps .si{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;flex:none}
+
+/* ---------- v2: journal entry card ---------- */
+.jcard{position:relative;margin:10px 0;padding:14px 14px 14px;border-radius:20px;background:linear-gradient(180deg,color-mix(in srgb,var(--c) 10%,#fff) 0%,#fff 70%);border:2px solid color-mix(in srgb,var(--c) 24%,#fff);box-shadow:0 4px 14px color-mix(in srgb,var(--c) 14%,transparent)}
+.jc-h{display:flex;align-items:center;gap:10px}
+.jc-badge{width:42px;height:42px;border-radius:14px;display:grid;place-items:center;flex:none;color:var(--c);background:#fff;box-shadow:inset 0 0 0 2px color-mix(in srgb,var(--c) 30%,#fff)}
+.jc-t{flex:1;min-width:0;line-height:1.15}
+.jc-t b{display:block;font-family:var(--fd);font-weight:600;font-size:17px}
+.jc-t small{display:flex;align-items:center;gap:4px;margin-top:3px;font-size:12px;font-weight:700;color:var(--muted)}
+.jc-del{width:34px;height:34px;border:0;border-radius:12px;background:transparent;color:#c9b8c2;display:grid;place-items:center;transition:background .15s,color .15s}
+.jc-del:active,.jc-del:hover{background:#fdecef;color:#e0405f}
+.jc-q{display:flex;gap:6px;align-items:flex-start;margin-top:12px;padding:8px 10px;border-radius:12px;background:color-mix(in srgb,var(--c) 8%,#faf5f7);font-size:13px;font-weight:700;color:#7a6b77;line-height:1.35}
+.jc-q .hi{color:var(--c);margin-top:1px}
+.jc-txt{margin:10px 2px 0;font-size:16px;line-height:1.55;font-weight:600;white-space:pre-wrap;word-break:break-word}
+.jcard.clamp .jc-txt{display:-webkit-box;-webkit-line-clamp:5;-webkit-box-orient:vertical;overflow:hidden}
+.jcard mark{background:#fff0a8;border-radius:4px;padding:0 2px}
+.mgroup .jcard:first-of-type{margin-top:8px}
+
+/* ---------- v2: install steps ---------- */
+.steps .si{background:var(--soft);color:var(--ink)}
+.steps .sn{display:inline-grid;place-items:center;width:18px;height:18px;border-radius:50%;background:var(--pink);color:#fff;font-size:11px;font-weight:800;margin-right:6px;vertical-align:1px}
+
+/* ---------- v2: motion ---------- */
+.modal,.sheet{animation:none}
+.tabs button{position:relative;isolation:isolate}
+.tabs button.on{background:none}
+.tab-pill{position:absolute;inset:0;border-radius:14px;background:#fbf2f5;z-index:-1}
+#toast div{animation:none}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}}
+.view>.card{animation:rise .42s cubic-bezier(.2,.9,.3,1.2) both}
+.view>.card:nth-child(2){animation-delay:.04s}.view>.card:nth-child(3){animation-delay:.08s}.view>.card:nth-child(4){animation-delay:.12s}.view>.card:nth-child(5){animation-delay:.16s}.view>.card:nth-child(6){animation-delay:.2s}
+.coupon,.drink,.wd,.moods button,.check{transition:transform .15s ease}
+.coupon:active,.moods button:active,.wd:active{transform:scale(.95)}
+.check:active{transform:scale(.85)}
+.bubble{transform-origin:50% 0}
+@media (prefers-reduced-motion: reduce){.view>.card{animation:none}}
+.grab{width:42px;height:5px;border-radius:99px;background:#eadde3;margin:-8px auto 12px}

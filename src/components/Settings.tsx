@@ -2,9 +2,12 @@
 import { useState } from "react";
 import { useModal } from "./Modal";
 import { actions, useStore } from "@/lib/store";
+import { sfx } from "@/lib/sound";
+import { useEnv } from "@/lib/platform";
+import { InstallGuide } from "./InstallGuide";
 
 export function SettingsSheet() {
-  const s = useStore(), { close } = useModal();
+  const s = useStore(), { close } = useModal(), env = useEnv();
   const [f, setF] = useState(s.settings);
   const num = (k: keyof typeof f) => (e: React.ChangeEvent<HTMLInputElement>) => setF({ ...f, [k]: +e.target.value });
   const txt = (k: keyof typeof f) => (e: React.ChangeEvent<HTMLInputElement>) => setF({ ...f, [k]: e.target.value });
@@ -26,6 +29,8 @@ export function SettingsSheet() {
       </div>
       <label className="field">Remind every (minutes)<input type="number" min={15} max={240} step={5} value={f.interval} onChange={num("interval")} /></label>
       <label className="switch">Reminders<input type="checkbox" checked={f.remind} onChange={(e) => setF({ ...f, remind: e.target.checked })} /></label>
+      <label className="switch">Sound effects<input type="checkbox" checked={f.sound} onChange={(e) => { setF({ ...f, sound: e.target.checked }); actions.updateSettings({ sound: e.target.checked }); if (e.target.checked) sfx("pop", true); }} /></label>
+      {env && !env.standalone && <><h3 style={{ marginTop: 14 }}>Install the app</h3><InstallGuide env={env} /></>}
       <div className="btns"><button className="btn ghost" onClick={close}>Cancel</button><button className="btn pink" style={{ flex: 1 }} onClick={() => { actions.updateSettings(f); close(); }}>Save</button></div>
     </>
   );

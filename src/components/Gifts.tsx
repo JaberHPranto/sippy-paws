@@ -1,5 +1,6 @@
 "use client";
 import { DressIcon, MailLove01Icon, Ticket01Icon, PawPrintIcon } from "@hugeicons/core-free-icons";
+import { motion } from "motion/react";
 import { Icon } from "./Icon";
 import { useModal } from "./Modal";
 import { COUPONS } from "@/lib/data";
@@ -12,12 +13,12 @@ function BigTicket({ t }: { t: Ticket }) {
   const { close } = useModal();
   return (
     <>
-      <div className="big-ticket">
+      <motion.div className="big-ticket" initial={{ scale: 0.6, rotate: -6, opacity: 0 }} animate={{ scale: 1, rotate: 0, opacity: 1 }} transition={{ type: "spring", stiffness: 300, damping: 16 }}>
         <div className="e" style={{ color: "var(--pink)" }}><Icon icon={couponIcon(t.couponId)} size={54} stroke={1.6} /></div>
         <div className="t">{t.title}</div>
         <div className="code">{t.code}</div>
         <div className="muted small" style={{ fontWeight: 700, marginTop: 6 }}>Redeemed {fmtDate(t.ts)} · show this to Pranto</div>
-      </div>
+      </motion.div>
       <button className="btn primary" style={{ width: "100%" }} onClick={close}>Close</button>
     </>
   );
@@ -46,10 +47,10 @@ export function Gifts({ go }: { go: (t: "style") => void }) {
         <p className="muted small" style={{ marginTop: -4 }}>Spend paw points on real treats. Redeem one, then show Pranto the ticket.</p>
         <div className="coupons">
           {COUPONS.map((c) => (
-            <button key={c.id} className={`coupon ${s.points < c.cost ? "locked" : ""}`} onClick={() => tryRedeem(c)}>
+            <motion.button whileTap={{ scale: 0.95, rotate: -1 }} key={c.id} className={`coupon ${s.points < c.cost ? "locked" : ""}`} onClick={() => tryRedeem(c)}>
               <span className="e"><Icon icon={c.icon} size={30} stroke={1.7} /></span><span className="t">{c.title}</span>
               <span className="c" style={{ display: "flex", alignItems: "center", gap: 4 }}><Icon icon={PawPrintIcon} size={14} stroke={2.2} />{c.cost}</span>
-            </button>
+            </motion.button>
           ))}
         </div>
       </div>

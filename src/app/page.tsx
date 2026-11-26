@@ -12,30 +12,38 @@ import { Welcome } from "@/components/Welcome";
 import { ModalProvider } from "@/components/Modal";
 import { Fx } from "@/components/Fx";
 import { actions, useStore } from "@/lib/store";
+import { wireTapSounds } from "@/lib/sound";
+import { AnimatePresence, MotionConfig, motion } from "motion/react";
 
 export default function Home() {
   const s = useStore();
   const [ready, setReady] = useState(false);
   const [tab, setTab] = useState<TabId>("home");
-  useEffect(() => { setReady(true); requestAnimationFrame(() => window.scrollTo(0, 0)); }, []);
-  const go = (t: TabId) => { setTab(t); window.scrollTo(0, 0); };
+  useEffect(() => { setReady(true); requestAnimationFrame(() => window.scrollTo(0, 0)); return wireTapSounds(); }, []);
+  const go = (t: TabId) => { if (t === tab) return; setTab(t); window.scrollTo({ top: 0 }); };
   if (!ready) return null;
   if (!s.welcomed) return <Welcome name={s.settings.name} onDone={actions.finishWelcome} />;
   return (
+    <MotionConfig reducedMotion="user">
     <ModalProvider>
       <div className="app">
       <Header />
       <main>
-        {tab === "home" && <Today go={go} />}
-        {tab === "overview" && <Stats />}
-        {tab === "style" && <StyleSoon />}
-        {tab === "journal" && <Journal />}
-        {tab === "todo" && <Todo />}
-        {tab === "rewards" && <Gifts go={go} />}
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.div key={tab} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.18, ease: "easeOut" }}>
+            {tab === "home" && <Today go={go} />}
+            {tab === "overview" && <Stats />}
+            {tab === "style" && <StyleSoon />}
+            {tab === "journal" && <Journal />}
+            {tab === "todo" && <Todo />}
+            {tab === "rewards" && <Gifts go={go} />}
+          </motion.div>
+        </AnimatePresence>
       </main>
       <TabBar tab={tab} onChange={go} />
       <Fx />
       </div>
     </ModalProvider>
+    </MotionConfig>
   );
 }
