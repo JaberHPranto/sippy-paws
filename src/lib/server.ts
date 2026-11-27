@@ -24,7 +24,7 @@ export type Payload = { title: string; body: string; url?: string };
 export async function sendPush(sub: Sub, p: Payload) {
   vapid();
   try {
-    await webpush.sendNotification({ endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } }, JSON.stringify(p), { TTL: 60 * 30, urgency: "normal" });
+    await webpush.sendNotification({ endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } }, JSON.stringify(p), { TTL: 60 * 30, urgency: "high" });
     return true;
   } catch (e) {
     const code = (e as { statusCode?: number }).statusCode;
